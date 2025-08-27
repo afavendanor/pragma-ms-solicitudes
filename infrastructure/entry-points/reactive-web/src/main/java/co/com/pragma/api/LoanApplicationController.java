@@ -1,8 +1,8 @@
 package co.com.pragma.api;
 
-import co.com.pragma.api.dto.CreateSolicitudeDTO;
+import co.com.pragma.api.dto.CreateLoanApplicationDTO;
 import co.com.pragma.api.dto.GenericResponseDTO;
-import co.com.pragma.api.handler.SolicitudeHandler;
+import co.com.pragma.api.handler.LoanApplicationHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,20 +21,20 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
 @CrossOrigin(origins = "*", methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT})
-@Tag(name = "SolicitudeController", description = "Entrada para las operaciones relacionadas al modelo de solicitud")
+@Tag(name = "LoanApplicationController", description = "Entrada para las operaciones relacionadas al modelo de solicitud")
 @Validated
-public class SolicitudeController {
+public class LoanApplicationController {
 
-    private final SolicitudeHandler solicitudeHandler;
+    private final LoanApplicationHandler loanApplicationHandler;
 
-    @PostMapping(value = "/solicitude", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/application", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Agregar solicitud", description = "Permite recibir una petición de agregar una solicitud. Este evalua los campos obligatorios, existencia y formatos para antes de crear el elemento en el sistema")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "solicitud creada correctamente"),
             @ApiResponse(responseCode = "400", description = "Los datos recibidos no cumplen con la obligatoriedad o formatos esperados", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Error inesperado durante el proceso", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class)))})
-    public Mono<ResponseEntity<GenericResponseDTO<Object>>> saveSolicitude(@Valid @RequestBody CreateSolicitudeDTO createSolicitudeDTO) {
-        return solicitudeHandler.createSolicitude(createSolicitudeDTO)
+    public Mono<ResponseEntity<GenericResponseDTO<Object>>> saveLoanApplication(@Valid @RequestBody CreateLoanApplicationDTO createLoanApplicationDTO) {
+        return loanApplicationHandler.createLoanApplication(createLoanApplicationDTO)
                 .map(genericResponseDto -> ResponseEntity.status(genericResponseDto.getStatus()).body(genericResponseDto));
 
     }

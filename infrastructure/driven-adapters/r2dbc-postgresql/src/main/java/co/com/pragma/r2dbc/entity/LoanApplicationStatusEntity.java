@@ -9,10 +9,12 @@ import org.springframework.data.relational.core.mapping.Table;
 
 @Getter
 @Setter
-@Table("solicitudes")
+@Table("loan_application_status")
 @AllArgsConstructor
 @NoArgsConstructor
-public class SolicitudeEntity {
+public class LoanApplicationStatusEntity {
     @Id
     private Long id;
+    private String name;
+    private String description;
 }

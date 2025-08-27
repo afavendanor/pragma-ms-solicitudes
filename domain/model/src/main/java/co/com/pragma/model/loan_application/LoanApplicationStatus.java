@@ -1,5 +1,5 @@
-package co.com.pragma.model.solicitude;
-import lombok.Builder;
+package co.com.pragma.model.loan_application;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,9 +7,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder(toBuilder = true)
-public class Solicitude {
+@NoArgsConstructor
+public class LoanApplicationStatus {
     private Long id;
+    private String name;
+    private String description;
 }

@@ -2,8 +2,8 @@ package co.com.pragma.r2dbc;
 
 import co.com.pragma.model.error.CustomException;
 import co.com.pragma.model.error.ResponseCode;
-import co.com.pragma.model.solicitude.Solicitude;
-import co.com.pragma.r2dbc.entity.SolicitudeEntity;
+import co.com.pragma.model.loan_application.LoanApplication;
+import co.com.pragma.r2dbc.entity.LoanApplicationEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,27 +24,27 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SolicitudeReactiveRepositoryAdapterTest {
+class LoanApplicationReactiveRepositoryAdapterTest {
 
     @InjectMocks
-    SolicitudeRepositoryAdapter repositoryAdapter;
+    LoanApplicationRepositoryAdapter repositoryAdapter;
 
     @Mock
-    SolicitudeReactiveRepository repository;
+    LoanApplicationReactiveRepository repository;
 
     @Mock
     ObjectMapper mapper;
 
-    private SolicitudeEntity entity;
-    private Solicitude solicitude;
+    private LoanApplicationEntity entity;
+    private LoanApplication loanApplication;
 
     @BeforeEach
     void setup() {
-        entity = new SolicitudeEntity();
+        entity = new LoanApplicationEntity();
         entity.setId(1L);
 
-        solicitude = new Solicitude();
-        solicitude.setId(1L);
+        loanApplication = new LoanApplication();
+        loanApplication.setAmount(1000d);
     }
 
     @Test
@@ -52,12 +52,12 @@ class SolicitudeReactiveRepositoryAdapterTest {
 
         when(repository.findById(anyLong()))
                 .thenReturn(Mono.just(entity));
-        when(mapper.map(entity, Solicitude.class)).thenReturn(solicitude);
+        when(mapper.map(entity, LoanApplication.class)).thenReturn(loanApplication);
 
-        Mono<Solicitude> result = repositoryAdapter.findById(1L);
+        Mono<LoanApplication> result = repositoryAdapter.findById(1L);
 
         StepVerifier.create(result)
-                .expectNextMatches(value -> value.equals(solicitude))
+                .expectNextMatches(value -> value.equals(loanApplication))
                 .verifyComplete();
     }
 
@@ -65,12 +65,12 @@ class SolicitudeReactiveRepositoryAdapterTest {
     void mustFindAllValues() {
         when(repository.findAll())
                 .thenReturn(Flux.just(entity));
-        when(mapper.map(entity, Solicitude.class)).thenReturn(solicitude);
+        when(mapper.map(entity, LoanApplication.class)).thenReturn(loanApplication);
 
-        Flux<Solicitude> result = repositoryAdapter.findAll();
+        Flux<LoanApplication> result = repositoryAdapter.findAll();
 
         StepVerifier.create(result)
-                .expectNextMatches(value -> value.equals(solicitude))
+                .expectNextMatches(value -> value.equals(loanApplication))
                 .verifyComplete();
     }
 
@@ -78,38 +78,38 @@ class SolicitudeReactiveRepositoryAdapterTest {
     void mustFindByExample() {
         when(repository.findAll(any(Example.class)))
                 .thenReturn(Flux.just(entity));
-        when(mapper.map(solicitude, SolicitudeEntity.class)).thenReturn(entity);
-        when(mapper.map(entity, Solicitude.class))
-                .thenReturn(solicitude);
+        when(mapper.map(loanApplication, LoanApplicationEntity.class)).thenReturn(entity);
+        when(mapper.map(entity, LoanApplication.class))
+                .thenReturn(loanApplication);
 
-        Flux<Solicitude> result = repositoryAdapter.findByExample(solicitude);
+        Flux<LoanApplication> result = repositoryAdapter.findByExample(loanApplication);
 
         StepVerifier.create(result)
-                .expectNext(solicitude)
+                .expectNext(loanApplication)
                 .verifyComplete();
     }
 
     @Test
     void mustSaveValue() {
-        when(repository.save(any(SolicitudeEntity.class)))
+        when(repository.save(any(LoanApplicationEntity.class)))
                 .thenReturn(Mono.just(entity));
-        when(mapper.map(solicitude, SolicitudeEntity.class)).thenReturn(entity);
-        when(mapper.map(entity, Solicitude.class)).thenReturn(solicitude);
+        when(mapper.map(loanApplication, LoanApplicationEntity.class)).thenReturn(entity);
+        when(mapper.map(entity, LoanApplication.class)).thenReturn(loanApplication);
 
-        Mono<Solicitude> result = repositoryAdapter.save(solicitude);
+        Mono<LoanApplication> result = repositoryAdapter.save(loanApplication);
 
         StepVerifier.create(result)
-                .expectNext(solicitude)
+                .expectNext(loanApplication)
                 .verifyComplete();
     }
 
     @Test
-    void shouldSaveSolicitude_error() {
-        when(mapper.map(solicitude, SolicitudeEntity.class)).thenReturn(entity);
+    void shouldSaveLoanApplication_error() {
+        when(mapper.map(loanApplication, LoanApplicationEntity.class)).thenReturn(entity);
         when(repository.save(any())).
                 thenReturn(Mono.error(new RuntimeException("Error en base de datos")));
 
-        Mono<Solicitude> result = repositoryAdapter.save(solicitude);
+        Mono<LoanApplication> result = repositoryAdapter.save(loanApplication);
 
         StepVerifier.create(result)
                 .expectErrorSatisfies(error -> {
@@ -120,12 +120,12 @@ class SolicitudeReactiveRepositoryAdapterTest {
     }
 
     @Test
-    void shouldSaveSolicitude_errorDuplicado() {
-        when(mapper.map(solicitude, SolicitudeEntity.class)).thenReturn(entity);
+    void shouldSaveLoanApplication_errorDuplicado() {
+        when(mapper.map(loanApplication, LoanApplicationEntity.class)).thenReturn(entity);
         when(repository.save(any())).
                 thenReturn(Mono.error(new DataIntegrityViolationException("Error, dato duplicado")));
 
-        Mono<Solicitude> result = repositoryAdapter.save(solicitude);
+        Mono<LoanApplication> result = repositoryAdapter.save(loanApplication);
 
         StepVerifier.create(result)
                 .expectErrorSatisfies(error -> {

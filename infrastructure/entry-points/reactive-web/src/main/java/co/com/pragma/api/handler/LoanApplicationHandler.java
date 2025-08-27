@@ -1,10 +1,10 @@
 package co.com.pragma.api.handler;
 
-import co.com.pragma.api.dto.CreateSolicitudeDTO;
+import co.com.pragma.api.dto.CreateLoanApplicationDTO;
 import co.com.pragma.api.dto.GenericResponseDTO;
-import co.com.pragma.api.mapper.SolicitudeApiRestMapper;
+import co.com.pragma.api.mapper.LoanApplicationApiRestMapper;
 import co.com.pragma.model.error.ResponseCode;
-import co.com.pragma.usecase.solicitude.RegisterSolicitudeUseCase;
+import co.com.pragma.usecase.loan_application.RegisterLoanApplicationUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -13,28 +13,28 @@ import reactor.util.Loggers;
 
 @Component
 @RequiredArgsConstructor
-public class SolicitudeHandler {
+public class LoanApplicationHandler {
 
-    private static final Logger log = Loggers.getLogger(SolicitudeHandler.class.getName());
+    private static final Logger log = Loggers.getLogger(LoanApplicationHandler.class.getName());
 
-    private final RegisterSolicitudeUseCase registerSolicitudeUseCase;
-    private final SolicitudeApiRestMapper solicitudeApiRestMapper;
+    private final RegisterLoanApplicationUseCase registerLoanApplicationUseCase;
+    private final LoanApplicationApiRestMapper loanApplicationApiRestMapper;
 
-    public Mono<GenericResponseDTO<Object>> createSolicitude(CreateSolicitudeDTO createSolicitudeDTO) {
+    public Mono<GenericResponseDTO<Object>> createLoanApplication(CreateLoanApplicationDTO createLoanApplicationDTO) {
 
         ErrorHandler<Object> errorHandler = new ErrorHandler<>();
         return errorHandler.addErrors(
                 Mono.defer(() -> {
                     log.debug("Inicializar guardar solicitud.");
-                    return registerSolicitudeUseCase.execute(
-                                    solicitudeApiRestMapper.createSolicitudeDTOToSolicitude(createSolicitudeDTO)
+                    return registerLoanApplicationUseCase.execute(
+                                    loanApplicationApiRestMapper.createLoanApplicationDTOToLoanApplication(createLoanApplicationDTO)
                             )
                             .thenReturn(new GenericResponseDTO<>(ResponseCode.MSSO001, null))
                             .doOnSuccess(response ->
                                     log.debug("Finalizar guardar solicitud.")
                             );
                 }),
-                "createSolicitude"
+                "createLoanApplication"
         );
     }
 }

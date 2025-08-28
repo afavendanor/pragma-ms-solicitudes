@@ -28,6 +28,9 @@ public class LoanTypeReactiveRepositoryAdapter extends ReactiveAdapterOperations
 
     @Override
     public Mono<LoanType> findById(Long id) {
+        if (id == null) {
+            return Mono.empty();
+        }
         return super.findById(id)
                 .doOnError(ex -> log.error("Error obteniendo tipo de crèdito: {}", ex.getMessage(), ex))
                 .onErrorMap(ex -> new CustomException(ResponseCode.MSSO000));

@@ -28,10 +28,14 @@ public class LoanApplicationStatusRepositoryAdapter extends ReactiveAdapterOpera
 
     @Override
     public Mono<LoanApplicationStatus> findByName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return Mono.empty();
+        }
+
         LoanApplicationStatus loanApplicationStatus = new LoanApplicationStatus();
         loanApplicationStatus.setName(name);
         return super.findByExample(loanApplicationStatus)
-                .next()
+                .take(1).singleOrEmpty()
                 .doOnError(ex -> log.error("Error obteniendo estado de crèdito: {}", ex.getMessage(), ex))
                 .onErrorMap(ex -> new CustomException(ResponseCode.MSSO000));
     }

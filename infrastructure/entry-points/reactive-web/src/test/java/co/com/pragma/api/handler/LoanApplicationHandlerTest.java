@@ -26,25 +26,25 @@ class LoanApplicationHandlerTest {
     private RegisterLoanApplicationUseCase registerLoanApplicationUseCase;
 
     @Mock
-    private LoanApplicationApiRestMapper LoanApplicationApiRestMapper;
+    private LoanApplicationApiRestMapper loanApplicationApiRestMapper;
 
     @InjectMocks
-    private LoanApplicationHandler LoanApplicationHandler;
+    private LoanApplicationHandler loanApplicationHandler;
 
     @Test
-    void guardarUsuario_debeRetornarRespuestaExitosa() {
+    void guardarLoanApplication_debeRetornarRespuestaExitosa() {
         // Arrange
         CreateLoanApplicationDTO createLoanApplicationDTO = new CreateLoanApplicationDTO();
 
         LoanApplication loanApplication = new LoanApplication();
 
-        when(LoanApplicationApiRestMapper.createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class)))
+        when(loanApplicationApiRestMapper.createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class)))
                 .thenReturn(loanApplication);
         when(registerLoanApplicationUseCase.execute(any(LoanApplication.class)))
                 .thenReturn(Mono.empty());
 
         // Act & Assert
-        StepVerifier.create(LoanApplicationHandler.createLoanApplication(createLoanApplicationDTO))
+        StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
                     assertEquals(ResponseCode.MSSO001, ResponseCode.valueOf(respuesta.getResponseCode()));
@@ -52,24 +52,24 @@ class LoanApplicationHandlerTest {
                 })
                 .verifyComplete();
 
-        verify(LoanApplicationApiRestMapper, times(1)).createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class));
+        verify(loanApplicationApiRestMapper, times(1)).createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class));
         verify(registerLoanApplicationUseCase, times(1)).execute(any(LoanApplication.class));
     }
 
     @Test
-    void guardarUsuario_deberiaRetornarError_cuandoFalla() {
+    void guardarLoanApplication_deberiaRetornarError_cuandoFalla() {
         // Arrange
         CreateLoanApplicationDTO createLoanApplicationDTO = new CreateLoanApplicationDTO();
 
-        LoanApplication LoanApplication = new LoanApplication();
+        LoanApplication loanApplication = new LoanApplication();
 
-        when(LoanApplicationApiRestMapper.createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class)))
-                .thenReturn(LoanApplication);
+        when(loanApplicationApiRestMapper.createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class)))
+                .thenReturn(loanApplication);
         when(registerLoanApplicationUseCase.execute(any(LoanApplication.class)))
                 .thenReturn(Mono.error(new CustomException(ResponseCode.MSSO000, "Fallo de prueba")));
 
         // Act & Assert
-        StepVerifier.create(LoanApplicationHandler.createLoanApplication(createLoanApplicationDTO))
+        StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
                     assertEquals(ResponseCode.MSSO000, ResponseCode.valueOf(respuesta.getResponseCode()));
@@ -77,22 +77,20 @@ class LoanApplicationHandlerTest {
                 })
                 .verifyComplete();
 
-        verify(LoanApplicationApiRestMapper, times(1)).createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class));
+        verify(loanApplicationApiRestMapper, times(1)).createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class));
         verify(registerLoanApplicationUseCase, times(1)).execute(any(LoanApplication.class));
     }
 
     @Test
-    void guardarUsuario_deberiaRetornarError_cuandoFallaMapper() {
+    void guardarLoanApplication_deberiaRetornarError_cuandoFallaMapper() {
         // Arrange
         CreateLoanApplicationDTO createLoanApplicationDTO = new CreateLoanApplicationDTO();
 
-        LoanApplication LoanApplication = new LoanApplication();
-
-        when(LoanApplicationApiRestMapper.createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class)))
+        when(loanApplicationApiRestMapper.createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class)))
                 .thenThrow(new CustomException(ResponseCode.MSSO000, "Fallo de prueba"));
 
         // Act & Assert
-        StepVerifier.create(LoanApplicationHandler.createLoanApplication(createLoanApplicationDTO))
+        StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
                     assertEquals(ResponseCode.MSSO000, ResponseCode.valueOf(respuesta.getResponseCode()));
@@ -100,7 +98,7 @@ class LoanApplicationHandlerTest {
                 })
                 .verifyComplete();
 
-        verify(LoanApplicationApiRestMapper, times(1)).createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class));
+        verify(loanApplicationApiRestMapper, times(1)).createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class));
         verify(registerLoanApplicationUseCase, never()).execute(any(LoanApplication.class));
     }
 }

@@ -1,0 +1,62 @@
+{
+	"info": {
+		"_postman_id": "e3ac348d-b92f-496c-8e19-106889e0d938",
+		"name": "CreadiYa",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3606206"
+	},
+	"item": [
+		{
+			"name": "healthcheck",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/healthcheck",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"healthcheck"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create-user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"identification\": \"CC123456789\",\n    \"name\": \"Andres\",\n    \"lastName\": \"Avendaño\",\n    \"birthDay\": \"1991-05-14\",\n    \"address\": \"Calle 123 #45-67, Bogotá\",\n    \"phone\": \"+57 3001234567\",\n    \"email\": \"andres.avendano@example.com\",\n    \"baseSalary\": 4500000.00\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/user",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"user"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

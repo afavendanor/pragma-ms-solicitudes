@@ -1,13 +1,17 @@
 package co.com.pragma.config;
 
+import co.com.pragma.model.loan_application.gateways.LoanApplicationRepository;
+import co.com.pragma.model.loan_application.gateways.LoanApplicationStatusRepository;
+import co.com.pragma.model.loan_application.gateways.LoanTypeRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UseCasesConfigTest {
+class UseCasesConfigTest {
 
     @Test
     void testUseCaseBeansExist() {
@@ -33,6 +37,21 @@ public class UseCasesConfigTest {
         @Bean
         public MyUseCase myUseCase() {
             return new MyUseCase();
+        }
+
+        @Bean
+        public LoanApplicationRepository loanApplicationRepository() {
+            return Mockito.mock(LoanApplicationRepository.class);
+        }
+
+        @Bean
+        public LoanApplicationStatusRepository loanApplicationStatusRepository() {
+            return Mockito.mock(LoanApplicationStatusRepository.class);
+        }
+
+        @Bean
+        public LoanTypeRepository loanTypeRepository() {
+            return Mockito.mock(LoanTypeRepository.class);
         }
     }
 

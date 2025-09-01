@@ -1,6 +1,3 @@
-server:
-  port: 8081
-
 spring:
   application:
     name: "pragma-ms-solicitudes"
@@ -10,6 +7,9 @@ spring:
 logging:
   level:
     co.com.pragma: DEBUG
+
+server:
+  port: 8080
 
 springdoc:
   api-docs:

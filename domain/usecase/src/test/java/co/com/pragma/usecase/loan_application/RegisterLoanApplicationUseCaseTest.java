@@ -1,7 +1,8 @@
 package co.com.pragma.usecase.loan_application;
 
+import co.com.pragma.model.error.InternalErrorException;
+import co.com.pragma.model.error.NotFoundException;
 import co.com.pragma.model.loan_application.LoanApplication;
-import co.com.pragma.model.error.CustomException;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplicationStatus;
 import co.com.pragma.model.loan_application.LoanType;
@@ -86,13 +87,13 @@ class RegisterLoanApplicationUseCaseTest {
         when(loanApplicationStatusRepository.findByName(anyString()))
                 .thenReturn(Mono.just(loanApplicationStatus));
         when(loanApplicationRepository.save(any(LoanApplication.class)))
-                .thenReturn(Mono.error(new CustomException(ResponseCode.MSSO000, "Error guardando solicitud")));
+                .thenReturn(Mono.error(new InternalErrorException(ResponseCode.MSSO000, "Error guardando solicitud")));
 
         // Act & Assert
         StepVerifier.create(registerLoanApplicationUseCase.execute(loanApplication))
                 .expectErrorSatisfies(error -> {
-                    assertInstanceOf(CustomException.class, error);
-                    assertEquals(ResponseCode.MSSO000, ((CustomException) error).getResponseCode());
+                    assertInstanceOf(InternalErrorException.class, error);
+                    assertEquals(ResponseCode.MSSO000.getMessage(), error.getMessage());
                 })
                 .verify();
 
@@ -109,13 +110,13 @@ class RegisterLoanApplicationUseCaseTest {
         loanType.setAutomaticValidation(Boolean.FALSE);
 
         when(loanTypeRepository.findById(anyLong()))
-                .thenReturn(Mono.error(new CustomException(ResponseCode.MSSO000, "Error obteniendo tipo")));
+                .thenReturn(Mono.error(new NotFoundException(ResponseCode.MSSO004, "Error obteniendo tipo")));
 
         // Act & Assert
         StepVerifier.create(registerLoanApplicationUseCase.execute(loanApplication))
                 .expectErrorSatisfies(error -> {
-                    assertInstanceOf(CustomException.class, error);
-                    assertEquals(ResponseCode.MSSO000, ((CustomException) error).getResponseCode());
+                    assertInstanceOf(NotFoundException.class, error);
+                    assertEquals(ResponseCode.MSSO004.getMessage(), error.getMessage());
                 })
                 .verify();
 
@@ -134,13 +135,13 @@ class RegisterLoanApplicationUseCaseTest {
         when(loanTypeRepository.findById(anyLong()))
                 .thenReturn(Mono.just(loanType));
         when(loanApplicationStatusRepository.findByName(anyString()))
-                .thenReturn(Mono.error(new CustomException(ResponseCode.MSSO000, "Error obteniendo estado")));
+                .thenReturn(Mono.error(new InternalErrorException(ResponseCode.MSSO000, "Error obteniendo estado")));
 
         // Act & Assert
         StepVerifier.create(registerLoanApplicationUseCase.execute(loanApplication))
                 .expectErrorSatisfies(error -> {
-                    assertInstanceOf(CustomException.class, error);
-                    assertEquals(ResponseCode.MSSO000, ((CustomException) error).getResponseCode());
+                    assertInstanceOf(InternalErrorException.class, error);
+                    assertEquals(ResponseCode.MSSO000.getMessage(), error.getMessage());
                 })
                 .verify();
 

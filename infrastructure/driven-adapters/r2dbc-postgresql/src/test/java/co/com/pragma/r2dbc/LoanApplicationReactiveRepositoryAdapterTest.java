@@ -1,6 +1,7 @@
 package co.com.pragma.r2dbc;
 
-import co.com.pragma.model.error.CustomException;
+import co.com.pragma.model.error.DuplicateEntryException;
+import co.com.pragma.model.error.InternalErrorException;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplication;
 import co.com.pragma.r2dbc.entity.LoanApplicationEntity;
@@ -113,8 +114,8 @@ class LoanApplicationReactiveRepositoryAdapterTest {
 
         StepVerifier.create(result)
                 .expectErrorSatisfies(error -> {
-                    assertInstanceOf(CustomException.class, error);
-                    assertEquals(ResponseCode.MSSO000, ((CustomException) error).getResponseCode());
+                    assertInstanceOf(InternalErrorException.class, error);
+                    assertEquals(ResponseCode.MSSO000.getMessage(), error.getMessage());
                 })
                 .verify();
     }
@@ -129,8 +130,8 @@ class LoanApplicationReactiveRepositoryAdapterTest {
 
         StepVerifier.create(result)
                 .expectErrorSatisfies(error -> {
-                    assertInstanceOf(CustomException.class, error);
-                    assertEquals(ResponseCode.MSSO003, ((CustomException) error).getResponseCode());
+                    assertInstanceOf(DuplicateEntryException.class, error);
+                    assertEquals(ResponseCode.MSSO003.getMessage(), error.getMessage());
                 })
                 .verify();
     }

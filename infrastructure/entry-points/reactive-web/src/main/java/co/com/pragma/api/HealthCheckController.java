@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class HealthCheckController {
             @ApiResponse(responseCode = "200", description = "El servicio está funcionando correctamente.")
     })
     public ResponseEntity<GenericResponseDTO<String>>  healthCheck() {
-        return ResponseEntity.ok(new GenericResponseDTO<>(ResponseCode.MSSO001, "Service is up and running"));
+        return ResponseEntity.ok(new GenericResponseDTO<>(HttpStatus.OK, ResponseCode.MSSO001, "Service is up and running"));
 
     }
 }

@@ -1,6 +1,6 @@
 package co.com.pragma.r2dbc;
 
-import co.com.pragma.model.error.CustomException;
+import co.com.pragma.model.error.InternalErrorException;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplicationStatus;
 import co.com.pragma.r2dbc.entity.LoanApplicationStatusEntity;
@@ -137,15 +137,15 @@ class LoanApplicationStatusReactiveRepositoryAdapterTest {
     void findByName_shouldMapToCustomException_whenRepositoryThrowsException() {
 
         when(repository.findAll(any(Example.class)))
-                .thenReturn(Flux.error(new CustomException(ResponseCode.MSSO000)));
+                .thenReturn(Flux.error(new InternalErrorException(ResponseCode.MSSO000)));
         when(mapper.map(any(LoanApplicationStatus.class), eq(LoanApplicationStatusEntity.class)))
                 .thenReturn(entity);
 
 
         StepVerifier.create(repositoryAdapter.findByName("pending"))
                 .expectErrorMatches(error ->
-                        error instanceof CustomException &&
-                                ((CustomException) error).getResponseCode() == ResponseCode.MSSO000)
+                        error instanceof InternalErrorException &&
+                                (error).getMessage().equalsIgnoreCase(ResponseCode.MSSO000.getMessage()))
                 .verify();
     }
 

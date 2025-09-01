@@ -1,6 +1,7 @@
 package co.com.pragma.r2dbc;
 
-import co.com.pragma.model.error.CustomException;
+import co.com.pragma.model.error.DuplicateEntryException;
+import co.com.pragma.model.error.InternalErrorException;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplication;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationRepository;
@@ -32,8 +33,8 @@ public class LoanApplicationRepositoryAdapter extends ReactiveAdapterOperations<
         return super.save(loanApplication)
                 .doOnError(e -> log.error("Error guardando solicitud: {}", e.getMessage(), e))
                 .onErrorMap(ex -> (ex instanceof DataIntegrityViolationException)
-                        ? new CustomException(ResponseCode.MSSO003)
-                        : new CustomException(ResponseCode.MSSO000));
+                        ? new DuplicateEntryException(ResponseCode.MSSO003)
+                        : new InternalErrorException(ResponseCode.MSSO000));
     }
 
 }

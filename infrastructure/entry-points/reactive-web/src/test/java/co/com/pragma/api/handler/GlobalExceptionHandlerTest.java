@@ -49,7 +49,7 @@ class GlobalExceptionHandlerTest {
                     List<co.com.pragma.model.error.FieldError> errores = Objects.requireNonNull(response.getBody()).getFieldErrors();
                     assertEquals("mensaje de error", errores.getFirst().getError());
                     assertEquals("campo", errores.getFirst().getField());
-                    assertEquals(ResponseCode.MSSO002.name(), response.getBody().getResponseCode());
+                    assertEquals(HttpStatus.BAD_REQUEST.value(), response.getBody().getResponseCode());
                 })
                 .verifyComplete();
     }
@@ -79,7 +79,7 @@ class GlobalExceptionHandlerTest {
                     List<co.com.pragma.model.error.FieldError> errores = Objects.requireNonNull(response.getBody()).getFieldErrors();
                     assertEquals("mensaje de error", errores.getFirst().getError());
                     assertEquals("campo", errores.getFirst().getField());
-                    assertEquals(ResponseCode.MSSO002.name(), response.getBody().getResponseCode());
+                    assertEquals(ResponseCode.MSSO002.getMessage(), response.getBody().getResponseMessage());
                 })
                 .verifyComplete();
     }
@@ -98,7 +98,6 @@ class GlobalExceptionHandlerTest {
                     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
                     GenericResponseDTO<?> body = response.getBody();
                     assertNotNull(body);
-                    assertEquals(ResponseCode.MSSO002.name(), body.getResponseCode());
                     assertEquals("Argumento inválido", body.getResponseMessage());
                     assertNotNull(body.getFieldErrors());
                     assertEquals(1, body.getFieldErrors().size());
@@ -121,7 +120,6 @@ class GlobalExceptionHandlerTest {
                     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
                     GenericResponseDTO<Map<String, String>> body = response.getBody();
                     assertNotNull(body);
-                    assertEquals(ResponseCode.MSSO002.name(), body.getResponseCode());
                     assertEquals("Argumento inválido", body.getResponseMessage());
                     assertNotNull(body.getFieldErrors());
                     assertFalse(body.getFieldErrors().isEmpty());
@@ -144,8 +142,7 @@ class GlobalExceptionHandlerTest {
                 .assertNext(response -> {
                     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
                     assertNotNull(response.getBody());
-                    assertEquals(ResponseCode.MSSO000.name(), response.getBody().getResponseCode());
-                    assertEquals(ResponseCode.MSSO000.getHtmlMessage(), response.getBody().getResponseMessage());
+                    assertEquals(ResponseCode.MSSO000.getMessage(), response.getBody().getResponseMessage());
                     assertNull(response.getBody().getData());
                 })
                 .verifyComplete();

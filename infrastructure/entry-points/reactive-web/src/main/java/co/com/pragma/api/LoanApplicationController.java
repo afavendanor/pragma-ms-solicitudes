@@ -35,7 +35,7 @@ public class LoanApplicationController {
             @ApiResponse(responseCode = "500", description = "Error inesperado durante el proceso", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class)))})
     public Mono<ResponseEntity<GenericResponseDTO<Object>>> saveLoanApplication(@Valid @RequestBody CreateLoanApplicationDTO createLoanApplicationDTO) {
         return loanApplicationHandler.createLoanApplication(createLoanApplicationDTO)
-                .map(genericResponseDto -> ResponseEntity.status(genericResponseDto.getStatus()).body(genericResponseDto));
+                .map(genericResponseDto -> ResponseEntity.status(genericResponseDto.getResponseCode()).body(genericResponseDto));
 
     }
 

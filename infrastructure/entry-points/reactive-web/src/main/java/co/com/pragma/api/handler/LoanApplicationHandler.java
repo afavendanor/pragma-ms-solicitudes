@@ -6,6 +6,7 @@ import co.com.pragma.api.mapper.LoanApplicationApiRestMapper;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.usecase.loan_application.RegisterLoanApplicationUseCase;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.util.Logger;
@@ -29,7 +30,7 @@ public class LoanApplicationHandler {
                     return registerLoanApplicationUseCase.execute(
                                     loanApplicationApiRestMapper.createLoanApplicationDTOToLoanApplication(createLoanApplicationDTO)
                             )
-                            .thenReturn(new GenericResponseDTO<>(ResponseCode.MSSO001, null))
+                            .thenReturn(new GenericResponseDTO<>(HttpStatus.CREATED, ResponseCode.MSSO001, null))
                             .doOnSuccess(response ->
                                     log.debug("Finalizar guardar solicitud.")
                             );

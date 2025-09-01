@@ -2,8 +2,8 @@ package co.com.pragma.api.handler;
 
 import co.com.pragma.api.dto.CreateLoanApplicationDTO;
 import co.com.pragma.api.mapper.LoanApplicationApiRestMapper;
+import co.com.pragma.model.error.InternalErrorException;
 import co.com.pragma.model.loan_application.LoanApplication;
-import co.com.pragma.model.error.CustomException;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.usecase.loan_application.RegisterLoanApplicationUseCase;
 import org.junit.jupiter.api.Test;
@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -47,7 +48,7 @@ class LoanApplicationHandlerTest {
         StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
-                    assertEquals(ResponseCode.MSSO001, ResponseCode.valueOf(respuesta.getResponseCode()));
+                    assertEquals(HttpStatus.CREATED.value(), respuesta.getResponseCode());
                     assertNull(respuesta.getData());
                 })
                 .verifyComplete();
@@ -66,13 +67,13 @@ class LoanApplicationHandlerTest {
         when(loanApplicationApiRestMapper.createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class)))
                 .thenReturn(loanApplication);
         when(registerLoanApplicationUseCase.execute(any(LoanApplication.class)))
-                .thenReturn(Mono.error(new CustomException(ResponseCode.MSSO000, "Fallo de prueba")));
+                .thenReturn(Mono.error(new InternalErrorException(ResponseCode.MSSO000, "Fallo de prueba")));
 
         // Act & Assert
         StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
-                    assertEquals(ResponseCode.MSSO000, ResponseCode.valueOf(respuesta.getResponseCode()));
+                    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), respuesta.getResponseCode());
                     assertNull(respuesta.getData());
                 })
                 .verifyComplete();
@@ -87,13 +88,13 @@ class LoanApplicationHandlerTest {
         CreateLoanApplicationDTO createLoanApplicationDTO = new CreateLoanApplicationDTO();
 
         when(loanApplicationApiRestMapper.createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class)))
-                .thenThrow(new CustomException(ResponseCode.MSSO000, "Fallo de prueba"));
+                .thenThrow(new InternalErrorException(ResponseCode.MSSO000, "Fallo de prueba"));
 
         // Act & Assert
         StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
-                    assertEquals(ResponseCode.MSSO000, ResponseCode.valueOf(respuesta.getResponseCode()));
+                    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), respuesta.getResponseCode());
                     assertNull(respuesta.getData());
                 })
                 .verifyComplete();

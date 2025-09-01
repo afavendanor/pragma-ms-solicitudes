@@ -1,6 +1,6 @@
 package co.com.pragma.r2dbc;
 
-import co.com.pragma.model.error.CustomException;
+import co.com.pragma.model.error.InternalErrorException;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanType;
 import co.com.pragma.r2dbc.entity.LoanTypeEntity;
@@ -71,14 +71,14 @@ class LoanTypeReactiveRepositoryAdapterTest {
     void mustFindValueById_Error() {
 
         when(repository.findById(anyLong()))
-                .thenReturn(Mono.error(new CustomException(ResponseCode.MSSO000)));
+                .thenReturn(Mono.error(new InternalErrorException(ResponseCode.MSSO000)));
 
         Mono<LoanType> result = repositoryAdapter.findById(1L);
 
         StepVerifier.create(result)
                 .expectErrorMatches(error ->
-                        error instanceof CustomException &&
-                                ((CustomException) error).getResponseCode() == ResponseCode.MSSO000)
+                        error instanceof InternalErrorException &&
+                                error.getMessage().equalsIgnoreCase(ResponseCode.MSSO000.getMessage()))
                 .verify();
     }
 

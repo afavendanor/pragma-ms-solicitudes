@@ -1,6 +1,6 @@
 package co.com.pragma.r2dbc;
 
-import co.com.pragma.model.error.CustomException;
+import co.com.pragma.model.error.InternalErrorException;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplicationStatus;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationStatusRepository;
@@ -37,6 +37,6 @@ public class LoanApplicationStatusRepositoryAdapter extends ReactiveAdapterOpera
         return super.findByExample(loanApplicationStatus)
                 .take(1).singleOrEmpty()
                 .doOnError(ex -> log.error("Error obteniendo estado de crèdito: {}", ex.getMessage(), ex))
-                .onErrorMap(ex -> new CustomException(ResponseCode.MSSO000));
+                .onErrorMap(ex -> new InternalErrorException(ResponseCode.MSSO000));
     }
 }

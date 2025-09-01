@@ -1,6 +1,6 @@
 package co.com.pragma.r2dbc;
 
-import co.com.pragma.model.error.CustomException;
+import co.com.pragma.model.error.InternalErrorException;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanType;
 import co.com.pragma.model.loan_application.gateways.LoanTypeRepository;
@@ -33,7 +33,7 @@ public class LoanTypeReactiveRepositoryAdapter extends ReactiveAdapterOperations
         }
         return super.findById(id)
                 .doOnError(ex -> log.error("Error obteniendo tipo de crèdito: {}", ex.getMessage(), ex))
-                .onErrorMap(ex -> new CustomException(ResponseCode.MSSO000));
+                .onErrorMap(ex -> new InternalErrorException(ResponseCode.MSSO000));
     }
 
 }

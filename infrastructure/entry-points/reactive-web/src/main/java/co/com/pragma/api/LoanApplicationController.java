@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +34,10 @@ public class LoanApplicationController {
             @ApiResponse(responseCode = "200", description = "solicitud creada correctamente"),
             @ApiResponse(responseCode = "400", description = "Los datos recibidos no cumplen con la obligatoriedad o formatos esperados", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Error inesperado durante el proceso", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class)))})
-    public Mono<ResponseEntity<GenericResponseDTO<Object>>> saveLoanApplication(@Valid @RequestBody CreateLoanApplicationDTO createLoanApplicationDTO) {
-        return loanApplicationHandler.createLoanApplication(createLoanApplicationDTO)
+    public Mono<ResponseEntity<GenericResponseDTO<Object>>> saveLoanApplication(
+            @NotNull(message = "El header Authorization es obligatorio.") @RequestHeader("Authorization") String authHeader,
+            @Valid @RequestBody CreateLoanApplicationDTO createLoanApplicationDTO) {
+        return loanApplicationHandler.createLoanApplication(createLoanApplicationDTO, authHeader)
                 .map(genericResponseDto -> ResponseEntity.status(genericResponseDto.getResponseCode()).body(genericResponseDto));
 
     }

@@ -2,6 +2,7 @@ package co.com.pragma.api.handler;
 
 import co.com.pragma.api.dto.CreateLoanApplicationDTO;
 import co.com.pragma.api.mapper.LoanApplicationApiRestMapper;
+import co.com.pragma.api.utils.JwtUtils;
 import co.com.pragma.model.error.InternalErrorException;
 import co.com.pragma.model.loan_application.LoanApplication;
 import co.com.pragma.model.error.ResponseCode;
@@ -23,11 +24,16 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class LoanApplicationHandlerTest {
 
+    private static final String TOKEN = "Bearer eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9";
+
     @Mock
     private RegisterLoanApplicationUseCase registerLoanApplicationUseCase;
 
     @Mock
     private LoanApplicationApiRestMapper loanApplicationApiRestMapper;
+
+    @Mock
+    private JwtUtils jwtUtils;
 
     @InjectMocks
     private LoanApplicationHandler loanApplicationHandler;
@@ -36,6 +42,7 @@ class LoanApplicationHandlerTest {
     void guardarLoanApplication_debeRetornarRespuestaExitosa() {
         // Arrange
         CreateLoanApplicationDTO createLoanApplicationDTO = new CreateLoanApplicationDTO();
+        createLoanApplicationDTO.setIdentification("id-123");
 
         LoanApplication loanApplication = new LoanApplication();
 
@@ -43,9 +50,11 @@ class LoanApplicationHandlerTest {
                 .thenReturn(loanApplication);
         when(registerLoanApplicationUseCase.execute(any(LoanApplication.class)))
                 .thenReturn(Mono.empty());
+        when(jwtUtils.getClaim(anyString(), anyString()))
+                .thenReturn(Mono.justOrEmpty("id-123"));
 
         // Act & Assert
-        StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO))
+        StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO, TOKEN))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
                     assertEquals(HttpStatus.CREATED.value(), respuesta.getResponseCode());
@@ -61,6 +70,7 @@ class LoanApplicationHandlerTest {
     void guardarLoanApplication_deberiaRetornarError_cuandoFalla() {
         // Arrange
         CreateLoanApplicationDTO createLoanApplicationDTO = new CreateLoanApplicationDTO();
+        createLoanApplicationDTO.setIdentification("id-123");
 
         LoanApplication loanApplication = new LoanApplication();
 
@@ -68,9 +78,12 @@ class LoanApplicationHandlerTest {
                 .thenReturn(loanApplication);
         when(registerLoanApplicationUseCase.execute(any(LoanApplication.class)))
                 .thenReturn(Mono.error(new InternalErrorException(ResponseCode.MSSO000, "Fallo de prueba")));
+        when(jwtUtils.getClaim(anyString(), anyString()))
+                .thenReturn(Mono.justOrEmpty("id-123"));
+
 
         // Act & Assert
-        StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO))
+        StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO, TOKEN))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
                     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), respuesta.getResponseCode());
@@ -86,12 +99,15 @@ class LoanApplicationHandlerTest {
     void guardarLoanApplication_deberiaRetornarError_cuandoFallaMapper() {
         // Arrange
         CreateLoanApplicationDTO createLoanApplicationDTO = new CreateLoanApplicationDTO();
+        createLoanApplicationDTO.setIdentification("id-123");
 
         when(loanApplicationApiRestMapper.createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class)))
                 .thenThrow(new InternalErrorException(ResponseCode.MSSO000, "Fallo de prueba"));
+        when(jwtUtils.getClaim(anyString(), anyString()))
+                .thenReturn(Mono.justOrEmpty("id-123"));
 
         // Act & Assert
-        StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO))
+        StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO, TOKEN))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
                     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), respuesta.getResponseCode());

@@ -14,6 +14,8 @@ import reactor.core.publisher.Mono;
 import reactor.util.Logger;
 import reactor.util.Loggers;
 
+import static co.com.pragma.api.security.config.TokenJwtConfig.PREFIX_TOKEN;
+
 @Component
 @RequiredArgsConstructor
 public class LoanApplicationHandler {
@@ -32,7 +34,7 @@ public class LoanApplicationHandler {
                 Mono.defer(() -> {
                     log.debug("Inicializar guardar solicitud.");
 
-                    return jwtUtils.getClaim(authHeader.replace("Bearer ", ""), "ID_")
+                    return jwtUtils.getClaim(authHeader.replace(PREFIX_TOKEN, ""), "ID_")
                             .switchIfEmpty(Mono.error(new LoginException(ResponseCode.MSSO005)))
                             .flatMap(identification -> {
                                 if (!identification.equals(createLoanApplicationDTO.getIdentification())) {

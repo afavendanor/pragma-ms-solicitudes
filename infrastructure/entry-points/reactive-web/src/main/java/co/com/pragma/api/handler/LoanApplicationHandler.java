@@ -32,7 +32,7 @@ public class LoanApplicationHandler {
                 Mono.defer(() -> {
                     log.debug("Inicializar guardar solicitud.");
 
-                    return jwtUtils.getClaim(authHeader.replace("Bearer ", ""), "identification")
+                    return jwtUtils.getClaim(authHeader.replace("Bearer ", ""), "ID_")
                             .switchIfEmpty(Mono.error(new LoginException(ResponseCode.MSSO005)))
                             .flatMap(identification -> {
                                 if (!identification.equals(createLoanApplicationDTO.getIdentification())) {

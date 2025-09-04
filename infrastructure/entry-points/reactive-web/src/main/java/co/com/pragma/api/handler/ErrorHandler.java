@@ -1,10 +1,7 @@
 package co.com.pragma.api.handler;
 
 import co.com.pragma.api.dto.GenericResponseDTO;
-import co.com.pragma.model.error.DuplicateEntryException;
-import co.com.pragma.model.error.FieldErrorException;
-import co.com.pragma.model.error.InternalErrorException;
-import co.com.pragma.model.error.NotFoundException;
+import co.com.pragma.model.error.*;
 import org.springframework.http.HttpStatus;
 import reactor.core.publisher.Mono;
 import reactor.util.Logger;
@@ -42,6 +39,12 @@ public class ErrorHandler<T> {
                         notFoundException.getMessage(),
                         null,
                         notFoundException.getFieldErrors()
+                ));
+                case LoginException loginException -> Mono.just(new GenericResponseDTO<>(
+                        HttpStatus.UNAUTHORIZED.value(),
+                        loginException.getMessage(),
+                        null,
+                        loginException.getFieldErrors()
                 ));
                 default -> Mono.error(exception);
             };

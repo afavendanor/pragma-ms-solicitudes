@@ -1,0 +1,5 @@
+adapter:
+  rest-consumer:
+    timeout: 15000
+    url: http://localhost:8081/api/v1
+    token: Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdXRob3JpdGllcyI6WyJST0xFX0FETUlOIiwiSURfQ0MxMjM0NTY3ODkiXSwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3NTcwMTQzODgsImV4cCI6MTc1NzAxNzk4OH0.uYXJprb-NEPlnHf-9janTlp3MjQL8Xw5BzEDkBSV470

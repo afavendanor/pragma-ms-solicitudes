@@ -7,7 +7,7 @@ public enum ResponseCode {
     MSSO003("La entidad a registrar ya existe en la app."),
     MSSO004("No se encontraron registros con los datos ingresados."),
     MSSO005("Identificación no es válida o no existe en el token."),
-    MSSO006("Solo puede crear sus porpias solicitudes."),
+    MSSO006("Solo puede crear sus propias solicitudes."),
     MSSO007("Error obteniendo información del token.");
 
     private final String message;

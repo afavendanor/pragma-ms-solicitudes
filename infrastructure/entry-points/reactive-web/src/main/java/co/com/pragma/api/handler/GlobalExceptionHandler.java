@@ -7,6 +7,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -116,6 +117,18 @@ public class GlobalExceptionHandler {
         return Mono.just(ResponseEntity
                 .badRequest()
                 .body(respuesta));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public Mono<ResponseEntity<GenericResponseDTO<Map<String, String>>>> handleAccessDeniedException(AccessDeniedException ex) {
+        GenericResponseDTO<Map<String, String>> respuesta = new GenericResponseDTO<>(
+                HttpStatus.UNAUTHORIZED.value(),
+                ex.getMessage(),
+                null,
+                List.of()
+        );
+
+        return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respuesta));
     }
 
     @ExceptionHandler(Exception.class)

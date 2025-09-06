@@ -10,7 +10,8 @@ public enum ResponseCode {
     MSSO006("Solo puede crear sus propias solicitudes."),
     MSSO007("Error obteniendo información del token."),
     MSSO008("Error obteniendo lista de solicitudes."),
-    MSSO009("Error obteniendo los usuarios del servicio de user.");
+    MSSO009("Error obteniendo los usuarios del servicio de user."),
+    MSSO010("Error estado no està parametrizado.");
 
     private final String message;
 

@@ -5,6 +5,7 @@ import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplicationPage;
 import co.com.pragma.model.loan_application.LoanApplicationPageList;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationRepository;
+import co.com.pragma.model.loan_application.util.LoanApplicationStatus;
 import co.com.pragma.model.user.User;
 import co.com.pragma.model.user.gateways.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,13 +63,13 @@ class ListLoanApplicationUseCaseTest {
         LoanApplicationPageList pageList = new LoanApplicationPageList();
         pageList.setLoanApplications(List.of(loanAppPage1, loanAppPage2));
 
-        when(loanApplicationRepository.getFilterList(1L, 0, 10))
+        when(loanApplicationRepository.getFilterList(any(), anyInt(), anyInt()))
                 .thenReturn(Mono.just(pageList));
 
         when(userRepository.findAllByEmails(anyList()))
                 .thenReturn(Mono.just(List.of(user1, user2)));
 
-        StepVerifier.create(listLoanApplicationUseCase.execute(1L, 0, 10))
+        StepVerifier.create(listLoanApplicationUseCase.execute(co.com.pragma.model.loan_application.util.LoanApplicationStatus.PENDING, 0, 10))
                 .assertNext(result -> {
                     assertThat(result.getLoanApplications()).hasSize(2);
                     assertThat(result.getLoanApplications().getFirst().getUser()).isNotNull();
@@ -83,10 +84,10 @@ class ListLoanApplicationUseCaseTest {
         LoanApplicationPageList pageList = new LoanApplicationPageList();
         pageList.setLoanApplications(Collections.emptyList());
 
-        when(loanApplicationRepository.getFilterList(1L, 0, 10))
+        when(loanApplicationRepository.getFilterList(any(), anyInt(), anyInt()))
                 .thenReturn(Mono.just(pageList));
 
-        StepVerifier.create(listLoanApplicationUseCase.execute(1L, 0, 10))
+        StepVerifier.create(listLoanApplicationUseCase.execute(LoanApplicationStatus.PENDING, 0, 10))
                 .expectErrorSatisfies(error -> {
                     assertInstanceOf(NotFoundException.class, error);
                     assertEquals(ResponseCode.MSSO004.getMessage(), error.getMessage());
@@ -101,13 +102,13 @@ class ListLoanApplicationUseCaseTest {
         LoanApplicationPageList pageList = new LoanApplicationPageList();
         pageList.setLoanApplications(List.of(loanAppPage1));
 
-        when(loanApplicationRepository.getFilterList(1L, 0, 10))
+        when(loanApplicationRepository.getFilterList(any(), anyInt(), anyInt()))
                 .thenReturn(Mono.just(pageList));
 
         when(userRepository.findAllByEmails(anyList()))
                 .thenReturn(Mono.just(Collections.emptyList()));
 
-        StepVerifier.create(listLoanApplicationUseCase.execute(1L, 0, 10))
+        StepVerifier.create(listLoanApplicationUseCase.execute(LoanApplicationStatus.PENDING, 0, 10))
                 .assertNext(result -> {
                     assertThat(result.getLoanApplications()).hasSize(1);
                     assertThat(result.getLoanApplications().getFirst().getUser()).isNull();
@@ -120,13 +121,13 @@ class ListLoanApplicationUseCaseTest {
         LoanApplicationPageList pageList = new LoanApplicationPageList();
         pageList.setLoanApplications(List.of(loanAppPage1));
 
-        when(loanApplicationRepository.getFilterList(1L, 0, 10))
+        when(loanApplicationRepository.getFilterList(any(), anyInt(), anyInt()))
                 .thenReturn(Mono.just(pageList));
 
         when(userRepository.findAllByEmails(anyList()))
                 .thenReturn(Mono.error(new RuntimeException("User repo error")));
 
-        StepVerifier.create(listLoanApplicationUseCase.execute(1L, 0, 10))
+        StepVerifier.create(listLoanApplicationUseCase.execute(LoanApplicationStatus.PENDING, 0, 10))
                 .expectErrorMatches(throwable ->
                         throwable instanceof RuntimeException &&
                                 throwable.getMessage().equals("User repo error"))

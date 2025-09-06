@@ -7,6 +7,7 @@ import co.com.pragma.api.mapper.LoanApplicationApiRestMapper;
 import co.com.pragma.api.security.utils.JwtUtils;
 import co.com.pragma.model.error.LoginException;
 import co.com.pragma.model.error.ResponseCode;
+import co.com.pragma.model.loan_application.util.LoanApplicationStatus;
 import co.com.pragma.usecase.loan_application.ListLoanApplicationUseCase;
 import co.com.pragma.usecase.loan_application.RegisterLoanApplicationUseCase;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +60,7 @@ public class LoanApplicationHandler {
         );
     }
 
-    public Mono<GenericResponseDTO<LoanApplicationPageListDTO>> listLoanApllications(Long status, int page, int size) {
+    public Mono<GenericResponseDTO<LoanApplicationPageListDTO>> listLoanApllications(LoanApplicationStatus status, int page, int size) {
         ErrorHandler<LoanApplicationPageListDTO> errorHandler = new ErrorHandler<>();
         return errorHandler.addErrors(
                 Mono.defer(() -> {

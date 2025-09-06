@@ -10,6 +10,7 @@ import co.com.pragma.model.loan_application.LoanApplication;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplicationPage;
 import co.com.pragma.model.loan_application.LoanApplicationPageList;
+import co.com.pragma.model.loan_application.util.LoanApplicationStatus;
 import co.com.pragma.usecase.loan_application.ListLoanApplicationUseCase;
 import co.com.pragma.usecase.loan_application.RegisterLoanApplicationUseCase;
 import org.junit.jupiter.api.Test;
@@ -141,13 +142,13 @@ class LoanApplicationHandlerTest {
         LoanApplicationPageList loanApplicationPageList = new LoanApplicationPageList();
         loanApplicationPageList.setLoanApplications(List.of(loanApplicationPage));
 
-        when(listLoanApplicationUseCase.execute(anyLong(), anyInt(), anyInt()))
+        when(listLoanApplicationUseCase.execute(any(), anyInt(), anyInt()))
                 .thenReturn(Mono.just(loanApplicationPageList));
         when(loanApplicationApiRestMapper.loanApplicationPageListToLoanApplicationPageListDTO(any(LoanApplicationPageList.class)))
                 .thenReturn(loanApplicationPageListDTO);
 
         // Act & Assert
-        StepVerifier.create(loanApplicationHandler.listLoanApllications(1L, 1, 5))
+        StepVerifier.create(loanApplicationHandler.listLoanApllications(LoanApplicationStatus.PENDING, 1, 5))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
                     assertEquals(HttpStatus.OK.value(), respuesta.getResponseCode());
@@ -157,17 +158,17 @@ class LoanApplicationHandlerTest {
                 .verifyComplete();
 
         verify(loanApplicationApiRestMapper, times(1)).loanApplicationPageListToLoanApplicationPageListDTO(any(LoanApplicationPageList.class));
-        verify(listLoanApplicationUseCase, times(1)).execute(anyLong(), anyInt(), anyInt());
+        verify(listLoanApplicationUseCase, times(1)).execute(any(), anyInt(), anyInt());
     }
 
     @Test
     void listarLoanApplication_deberiaRetornarError_cuandoFalla() {
         // Arrange
-        when(listLoanApplicationUseCase.execute(anyLong(), anyInt(), anyInt()))
+        when(listLoanApplicationUseCase.execute(any(), anyInt(), anyInt()))
                 .thenReturn(Mono.error(new InternalErrorException(ResponseCode.MSSO000, "Fallo de prueba")));
 
         // Act & Assert
-        StepVerifier.create(loanApplicationHandler.listLoanApllications(1L, 1, 5))
+        StepVerifier.create(loanApplicationHandler.listLoanApllications(LoanApplicationStatus.PENDING, 1, 5))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
                     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), respuesta.getResponseCode());
@@ -176,6 +177,6 @@ class LoanApplicationHandlerTest {
                 .verifyComplete();
 
         verify(loanApplicationApiRestMapper, never()).loanApplicationPageListToLoanApplicationPageListDTO(any(LoanApplicationPageList.class));
-        verify(listLoanApplicationUseCase, times(1)).execute(anyLong(), anyInt(), anyInt());
+        verify(listLoanApplicationUseCase, times(1)).execute(any(), anyInt(), anyInt());
     }
 }

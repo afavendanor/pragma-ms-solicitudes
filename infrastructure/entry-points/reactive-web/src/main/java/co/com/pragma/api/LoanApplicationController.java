@@ -4,6 +4,7 @@ import co.com.pragma.api.dto.CreateLoanApplicationDTO;
 import co.com.pragma.api.dto.GenericResponseDTO;
 import co.com.pragma.api.dto.LoanApplicationPageListDTO;
 import co.com.pragma.api.handler.LoanApplicationHandler;
+import co.com.pragma.model.loan_application.util.LoanApplicationStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -57,7 +58,7 @@ public class LoanApplicationController {
             @ApiResponse(responseCode = "404", description = "No se encuentran registros con los datos ingresados", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Error inesperado durante el proceso", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class)))})
     public Mono<ResponseEntity<GenericResponseDTO<LoanApplicationPageListDTO>>> listLoanApplications(
-            @RequestParam(name = "status") @NotNull(message = "El id del estado es requerido.") Long status,
+            @RequestParam(name = "status") @NotNull(message = "El estado es requerido.") LoanApplicationStatus status,
             @RequestParam(name = "page", defaultValue = "1") @Min(value = 1, message = "El número de página debe ser mayor a 0") int page,
             @RequestParam(name = "size", defaultValue = "10") @Min(value = 1, message = "El tamaño de página debe ser mayor a 0") int size
     ) {

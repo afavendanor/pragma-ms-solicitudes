@@ -1,8 +1,8 @@
 spring:
   application:
-    name: "pragma-ms-solicitudes"
+    name: pragma-ms-solicitudes
   profiles:
-    include: r2dbc
+    include: r2dbc, rest-consumer
 
 logging:
   level:

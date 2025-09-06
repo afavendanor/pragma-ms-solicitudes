@@ -46,6 +46,12 @@ public class ErrorHandler<T> {
                         null,
                         loginException.getFieldErrors()
                 ));
+                case DependencyException dependencyException -> Mono.just(new GenericResponseDTO<>(
+                        HttpStatus.FAILED_DEPENDENCY.value(),
+                        dependencyException.getMessage(),
+                        null,
+                        dependencyException.getFieldErrors()
+                ));
                 default -> Mono.error(exception);
             };
         });

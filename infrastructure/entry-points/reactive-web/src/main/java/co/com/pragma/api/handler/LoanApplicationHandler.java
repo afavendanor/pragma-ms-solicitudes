@@ -2,10 +2,12 @@ package co.com.pragma.api.handler;
 
 import co.com.pragma.api.dto.CreateLoanApplicationDTO;
 import co.com.pragma.api.dto.GenericResponseDTO;
+import co.com.pragma.api.dto.LoanApplicationPageListDTO;
 import co.com.pragma.api.mapper.LoanApplicationApiRestMapper;
-import co.com.pragma.api.utils.JwtUtils;
+import co.com.pragma.api.security.utils.JwtUtils;
 import co.com.pragma.model.error.LoginException;
 import co.com.pragma.model.error.ResponseCode;
+import co.com.pragma.usecase.loan_application.ListLoanApplicationUseCase;
 import co.com.pragma.usecase.loan_application.RegisterLoanApplicationUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ public class LoanApplicationHandler {
     private static final Logger log = Loggers.getLogger(LoanApplicationHandler.class.getName());
 
     private final RegisterLoanApplicationUseCase registerLoanApplicationUseCase;
+    private final ListLoanApplicationUseCase listLoanApplicationUseCase;
     private final LoanApplicationApiRestMapper loanApplicationApiRestMapper;
     private final JwtUtils jwtUtils;
 
@@ -54,6 +57,19 @@ public class LoanApplicationHandler {
                 }),
                 "createLoanApplication"
         );
+    }
+
+    public Mono<GenericResponseDTO<LoanApplicationPageListDTO>> listLoanApllications(Long status, int page, int size) {
+        ErrorHandler<LoanApplicationPageListDTO> errorHandler = new ErrorHandler<>();
+        return errorHandler.addErrors(
+                Mono.defer(() -> {
+                    log.debug("Inicializar consulta de solictudes");
+                    return listLoanApplicationUseCase.execute(status, page, size)
+                            .map(loanApplicationApiRestMapper::loanApplicationPageListToLoanApplicationPageListDTO)
+                            .map(dto -> new GenericResponseDTO<>(HttpStatus.OK, ResponseCode.MSSO001, dto))
+                            .doOnSuccess(response -> log.debug("Finalizar consulta de solicitudes"));
+                }),
+                "listLoanApllications");
     }
 
 }

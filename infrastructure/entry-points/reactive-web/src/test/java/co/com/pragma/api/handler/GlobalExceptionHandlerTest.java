@@ -8,6 +8,7 @@ import jakarta.validation.Path;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebInputException;
@@ -125,6 +126,25 @@ class GlobalExceptionHandlerTest {
                     assertFalse(body.getFieldErrors().isEmpty());
                     assertTrue(body.getFieldErrors().stream()
                             .anyMatch(err -> err.getError().contains("Campo 'id'")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void handleAccessDeniedException_deberiaRetornarError() {
+        // Arrange
+        AccessDeniedException ex = new AccessDeniedException("Acceso denegado");
+
+        // Act
+        Mono<ResponseEntity<GenericResponseDTO<Map<String, String>>>> resultado = handler.handleAccessDeniedException(ex);
+
+        // Assert
+        StepVerifier.create(resultado)
+                .assertNext(response -> {
+                    assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+                    assertNotNull(response.getBody());
+                    assertEquals("Acceso denegado", response.getBody().getResponseMessage());
+                    assertNull(response.getBody().getData());
                 })
                 .verifyComplete();
     }

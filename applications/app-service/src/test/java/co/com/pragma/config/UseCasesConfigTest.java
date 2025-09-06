@@ -3,6 +3,7 @@ package co.com.pragma.config;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationRepository;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationStatusRepository;
 import co.com.pragma.model.loan_application.gateways.LoanTypeRepository;
+import co.com.pragma.model.user.gateways.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -52,6 +53,11 @@ class UseCasesConfigTest {
         @Bean
         public LoanTypeRepository loanTypeRepository() {
             return Mockito.mock(LoanTypeRepository.class);
+        }
+
+        @Bean
+        public UserRepository userRepository() {
+            return Mockito.mock(UserRepository.class);
         }
     }
 

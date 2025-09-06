@@ -8,7 +8,9 @@ public enum ResponseCode {
     MSSO004("No se encontraron registros con los datos ingresados."),
     MSSO005("Identificación no es válida o no existe en el token."),
     MSSO006("Solo puede crear sus propias solicitudes."),
-    MSSO007("Error obteniendo información del token.");
+    MSSO007("Error obteniendo información del token."),
+    MSSO008("Error obteniendo lista de solicitudes."),
+    MSSO009("Error obteniendo los usuarios del servicio de user.");
 
     private final String message;
 

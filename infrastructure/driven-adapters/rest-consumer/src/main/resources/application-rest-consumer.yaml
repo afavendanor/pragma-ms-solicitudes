@@ -1,0 +1,5 @@
+adapter:
+  rest-consumer:
+    timeout: 15000
+    url: http://localhost:8081/api/v1
+    api-key: mi-api-key-secreta

@@ -29,6 +29,8 @@ import reactor.core.publisher.Mono;
 @Validated
 public class LoanApplicationController {
 
+    private String apiKey;
+
     private final LoanApplicationHandler loanApplicationHandler;
 
     @PostMapping(value = "/application", consumes = MediaType.APPLICATION_JSON_VALUE)

@@ -1,5 +1,7 @@
 package co.com.pragma.usecase.loan_application;
 
+import co.com.pragma.model.error.NotFoundException;
+import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplicationPage;
 import co.com.pragma.model.loan_application.LoanApplicationPageList;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationRepository;
@@ -17,6 +19,8 @@ public class ListLoanApplicationUseCase {
 
     public Mono<LoanApplicationPageList> execute(Long status, int page, int size) {
         return loanApplicationRepository.getFilterList(status, page, size)
+                .filter(loanApplicationPageList -> !loanApplicationPageList.getLoanApplications().isEmpty())
+                .switchIfEmpty(Mono.error(new NotFoundException(ResponseCode.MSSO004)))
                 .flatMap(list -> {
                     List<String> emails = list.getLoanApplications()
                             .stream()
@@ -36,7 +40,5 @@ public class ListLoanApplicationUseCase {
                             });
                 });
     }
-
-
 
 }

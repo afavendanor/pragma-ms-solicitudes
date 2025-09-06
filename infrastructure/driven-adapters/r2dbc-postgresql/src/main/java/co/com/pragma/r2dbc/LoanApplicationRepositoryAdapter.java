@@ -113,7 +113,7 @@ public class LoanApplicationRepositoryAdapter extends ReactiveAdapterOperations<
 
                 })
                 .doOnError(e -> log.error("Error final en listar solicitudes: {}", e.getMessage(), e))
-                .onErrorMap(ex -> new InternalErrorException(ResponseCode.MSSO000));
+                .onErrorMap(ex -> (ex instanceof NotFoundException) ? ex : new InternalErrorException(ResponseCode.MSSO000));
     }
 
     public Mono<Double> totalMonthlyDebtApprovedRequests() {

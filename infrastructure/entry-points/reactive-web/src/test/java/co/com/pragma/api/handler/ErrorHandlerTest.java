@@ -93,6 +93,36 @@ class ErrorHandlerTest {
     }
 
     @Test
+    void addErrors_whenLoginException_shouldReturnCustomErrorResponse() {
+        // Arrange
+        LoginException exception = new LoginException(ResponseCode.MSSO007, "Error inesperado");
+        Mono<GenericResponseDTO<String>> monoError = Mono.error(exception);
+
+        // Act & Assert
+        StepVerifier.create(errorHandler.addErrors(monoError, "testMethod"))
+                .expectNextMatches(respuesta ->
+                        respuesta.getResponseCode().equals(HttpStatus.UNAUTHORIZED.value()) &&
+                                respuesta.getResponseMessage().equals(ResponseCode.MSSO007.getMessage())
+                )
+                .verifyComplete();
+    }
+
+    @Test
+    void addErrors_whenDependencyException_shouldReturnCustomErrorResponse() {
+        // Arrange
+        DependencyException exception = new DependencyException(ResponseCode.MSSO009, "Error inesperado");
+        Mono<GenericResponseDTO<String>> monoError = Mono.error(exception);
+
+        // Act & Assert
+        StepVerifier.create(errorHandler.addErrors(monoError, "testMethod"))
+                .expectNextMatches(respuesta ->
+                        respuesta.getResponseCode().equals(HttpStatus.FAILED_DEPENDENCY.value()) &&
+                                respuesta.getResponseMessage().equals(ResponseCode.MSSO009.getMessage())
+                )
+                .verifyComplete();
+    }
+
+    @Test
     void addErrors_whenGenericException_shouldReturnDefaultErrorResponse() {
         // Arrange
         RuntimeException exception = new RuntimeException("error inesperado");

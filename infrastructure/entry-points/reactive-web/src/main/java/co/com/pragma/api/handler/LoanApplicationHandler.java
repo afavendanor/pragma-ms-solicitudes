@@ -4,7 +4,7 @@ import co.com.pragma.api.dto.CreateLoanApplicationDTO;
 import co.com.pragma.api.dto.GenericResponseDTO;
 import co.com.pragma.api.dto.LoanApplicationPageListDTO;
 import co.com.pragma.api.mapper.LoanApplicationApiRestMapper;
-import co.com.pragma.api.utils.JwtUtils;
+import co.com.pragma.api.security.utils.JwtUtils;
 import co.com.pragma.model.error.LoginException;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.usecase.loan_application.ListLoanApplicationUseCase;

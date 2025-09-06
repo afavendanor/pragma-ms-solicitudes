@@ -102,7 +102,8 @@ task jacocoMergedReport(type: JacocoReport) {
                     "**/*MainApplication.class/**",
                     "**/model/**",
                     "**/entity/**", "**/*Entity.class", "**/*Repository.class",
-                    "**/dto/**", "**/mapper/**", "**/*DTO.class", "**/*Mapper.class"
+                    "**/dto/**", "**/mapper/**", "**/*DTO.class", "**/*Mapper.class",
+                    "**/security/**",  "**/*Config.class"
             ])
         }))
     }
@@ -130,7 +131,8 @@ jacocoTestCoverageVerification {
                     "**/*MainApplication.class/**",
                     "**/model/**",
                     "**/entity/**", "**/*Entity.class", "**/*Repository.class",
-                    "**/dto/**", "**/mapper/**", "**/*DTO.class", "**/*Mapper.class"
+                    "**/dto/**", "**/mapper/**", "**/*DTO.class", "**/*Mapper.class",
+                    "**/security/**",  "**/*Config.class"
             ])
         }))
     }

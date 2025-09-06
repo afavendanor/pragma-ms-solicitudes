@@ -4,7 +4,6 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,13 +35,12 @@ class RestConsumerTest {
     }
 
     @Test
-    @DisplayName("Validate the function testGet.")
     void validateTestGet() {
 
         mockBackEnd.enqueue(new MockResponse()
                 .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .setResponseCode(HttpStatus.OK.value())
-                .setBody("{\"state\" : \"ok\"}"));
+                .setBody("{\"data\":[{\"identification\":\"CC123456788\",\"name\":\"Andres\",\"lastName\":\"Avendaño\",\"birthDay\":\"1991-05-14\",\"address\":\"Calle 123 #45-67, Bogotá\",\"phone\":\"+57 3001234567\",\"email\":\"andres.avendano@example.com\",\"baseSalary\":4500000}]}"));
         var response = restConsumer.findAllByEmails(List.of("mail"));
 
         StepVerifier.create(response)

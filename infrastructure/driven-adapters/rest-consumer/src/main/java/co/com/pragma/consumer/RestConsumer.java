@@ -17,8 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RestConsumer implements UserRepository {
 
-    @Value("${adapter.rest-consumer.token}")
-    private String token;
+    @Value("${adapter.rest-consumer.api-key}")
+    private String apiKey;
 
     private final WebClient client;
 
@@ -30,7 +30,7 @@ public class RestConsumer implements UserRepository {
                         .path("/users/emails")
                         .queryParam("emails", String.join(",", emails))
                         .build())
-                .headers(h -> h.setBearerAuth(token))
+                .header("x-api-key", apiKey)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ObjectResponse<List<User>>>() {})
                 .map(ObjectResponse::getData)

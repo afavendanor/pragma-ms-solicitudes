@@ -1,4 +1,4 @@
-package co.com.pragma.api.utils;
+package co.com.pragma.api.security.utils;
 
 import co.com.pragma.model.error.LoginException;
 import co.com.pragma.model.error.ResponseCode;

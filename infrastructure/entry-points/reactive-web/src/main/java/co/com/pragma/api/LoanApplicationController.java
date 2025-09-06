@@ -3,6 +3,7 @@ package co.com.pragma.api;
 import co.com.pragma.api.dto.CreateLoanApplicationDTO;
 import co.com.pragma.api.dto.GenericResponseDTO;
 import co.com.pragma.api.dto.LoanApplicationPageListDTO;
+import co.com.pragma.api.dto.UpdateLoanApplicationDTO;
 import co.com.pragma.api.handler.LoanApplicationHandler;
 import co.com.pragma.model.loan_application.util.LoanApplicationStatus;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,6 +46,20 @@ public class LoanApplicationController {
             @RequestHeader("Authorization") String authHeader,
             @Valid @RequestBody CreateLoanApplicationDTO createLoanApplicationDTO) {
         return loanApplicationHandler.createLoanApplication(createLoanApplicationDTO, authHeader)
+                .map(genericResponseDto -> ResponseEntity.status(genericResponseDto.getResponseCode()).body(genericResponseDto));
+
+    }
+
+    @PutMapping(value = "/application", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('ROLE_ADVISER', 'ROLE_ADMIN')")
+    @Operation(summary = "Actualizar solicitud", description = "Permite recibir una petición de actualizar una solicitud. Este evalua los campos obligatorios, existencia y formatos para antes de crear el elemento en el sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "solicitud actualizada correctamente"),
+            @ApiResponse(responseCode = "400", description = "Los datos recibidos no cumplen con la obligatoriedad o formatos esperados", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Error inesperado durante el proceso", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class)))})
+    public Mono<ResponseEntity<GenericResponseDTO<Void>>> updateLoanApplication(
+            @Valid @RequestBody UpdateLoanApplicationDTO updateLoanApplicationDTO) {
+        return loanApplicationHandler.updateLoanApllications(updateLoanApplicationDTO)
                 .map(genericResponseDto -> ResponseEntity.status(genericResponseDto.getResponseCode()).body(genericResponseDto));
 
     }

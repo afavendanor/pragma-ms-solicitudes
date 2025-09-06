@@ -17,5 +17,6 @@ public class LoanApplication {
     private Integer term;
     private String email;
     private Long loanApplicationStatusId;
+    private LoanApplicationStatus status;
     private Long loanTypeId;
 }

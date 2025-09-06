@@ -9,6 +9,7 @@ import co.com.pragma.model.loan_application.gateways.LoanTypeRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+import static co.com.pragma.model.loan_application.util.LoanApplicationStatus.PENDING;
 import static co.com.pragma.model.loan_application.util.LoanApplicationStatus.PENDING_REVIEW;
 
 @RequiredArgsConstructor
@@ -21,12 +22,15 @@ public class RegisterLoanApplicationUseCase {
     public Mono<LoanApplication> execute(LoanApplication loanApplication) {
         return loanTypeRepository.findById(loanApplication.getLoanTypeId())
                 .switchIfEmpty(Mono.error(new NotFoundException(ResponseCode.MSSO004)))
-                .flatMap(type -> loanApplicationStatusRepository.findByName(PENDING_REVIEW.name())
-                        .switchIfEmpty(Mono.error(new NotFoundException(ResponseCode.MSSO004)))
-                        .flatMap(status -> {
-                            loanApplication.setLoanApplicationStatusId(status.getId());
-                            return loanApplicationRepository.save(loanApplication);
-                        })
+                .flatMap(type -> {
+                    String statusFromEnum = Boolean.TRUE.equals(type.getAutomaticValidation()) ? PENDING_REVIEW.name() : PENDING.name();
+                    return loanApplicationStatusRepository.findByName(statusFromEnum)
+                                    .switchIfEmpty(Mono.error(new NotFoundException(ResponseCode.MSSO004)))
+                                    .flatMap(status -> {
+                                        loanApplication.setLoanApplicationStatusId(status.getId());
+                                        return loanApplicationRepository.save(loanApplication);
+                                    });
+                        }
                 );
     }
 }

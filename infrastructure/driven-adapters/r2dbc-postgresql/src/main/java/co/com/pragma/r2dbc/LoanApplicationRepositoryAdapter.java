@@ -127,7 +127,7 @@ public class LoanApplicationRepositoryAdapter extends ReactiveAdapterOperations<
     }
 
     public Mono<Double> totalMonthlyDebtApprovedRequests() {
-        return loanApplicationStatusReactiveRepository.findByName("APROVED")
+        return loanApplicationStatusReactiveRepository.findByName(co.com.pragma.model.loan_application.util.LoanApplicationStatus.APPROVED.name())
                 .flatMapMany(status -> repository.findByloanApplicationStatusId(status.getId()))
                 .map(LoanApplicationEntity::getAmount)
                 .reduce(0.0, Double::sum);

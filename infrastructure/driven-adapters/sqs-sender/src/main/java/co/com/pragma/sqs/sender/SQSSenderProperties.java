@@ -1,4 +1,4 @@
-package co.com.pragma.sqs.sender.config;
+package co.com.pragma.sqs.sender;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

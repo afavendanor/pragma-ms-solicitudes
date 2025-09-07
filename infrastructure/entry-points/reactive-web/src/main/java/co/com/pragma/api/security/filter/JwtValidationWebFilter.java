@@ -29,25 +29,8 @@ public class JwtValidationWebFilter implements WebFilter {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static final List<String> PUBLIC_PATHS = List.of(
-            "/api/v1/healthcheck",
-            "/swagger-ui",
-            "/v3/api-docs",
-            "/swagger-resources",
-            "/webjars"
-    );
-
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-
-        String path = exchange.getRequest().getPath().toString();
-
-        for (String publicPath : PUBLIC_PATHS) {
-            if (path.startsWith(publicPath)) {
-                return chain.filter(exchange);
-            }
-        }
-
         String header = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (header == null || !header.startsWith(PREFIX_TOKEN)) {
             return chain.filter(exchange);
@@ -80,7 +63,6 @@ public class JwtValidationWebFilter implements WebFilter {
                     .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(
                             Mono.just(new SecurityContextImpl(authentication))
                     ));
-
         } catch (JwtException e) {
             return unauthorized(exchange, "Invalid JWT token: " + e.getMessage());
         }

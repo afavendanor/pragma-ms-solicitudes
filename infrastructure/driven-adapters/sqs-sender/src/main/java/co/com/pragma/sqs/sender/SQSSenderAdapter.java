@@ -2,7 +2,6 @@ package co.com.pragma.sqs.sender;
 
 import co.com.pragma.model.loan_application.LoanApplication;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationSQSSenderGateway;
-import co.com.pragma.sqs.sender.config.SQSSenderProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,8 @@ public class SQSSenderAdapter implements LoanApplicationSQSSenderGateway {
         return Mono.fromCallable(() -> buildRequest(message))
                 .flatMap(request -> Mono.fromFuture(client.sendMessage(request)))
                 .doOnNext(response -> log.debug("Message sent {}", response.messageId()))
-                .map(SendMessageResponse::messageId);
+                .map(SendMessageResponse::messageId)
+                .doOnError(error -> log.error("Message sent error: {}", error.getMessage(), error));
     }
 
     private SendMessageRequest buildRequest(LoanApplication message) throws JsonProcessingException {

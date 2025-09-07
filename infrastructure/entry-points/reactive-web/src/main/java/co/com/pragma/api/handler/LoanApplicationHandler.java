@@ -63,16 +63,16 @@ public class LoanApplicationHandler {
         );
     }
 
-    public Mono<GenericResponseDTO<Void>> updateLoanApllications(UpdateLoanApplicationDTO updateLoanApplicationDTO) {
-        ErrorHandler<Void> errorHandler = new ErrorHandler<>();
+    public Mono<GenericResponseDTO<Object>> updateLoanAplications(UpdateLoanApplicationDTO updateLoanApplicationDTO) {
+        ErrorHandler<Object> errorHandler = new ErrorHandler<>();
         return errorHandler.addErrors(
                 Mono.defer(() -> {
-                    log.debug("Inicializar actualizaciòn de solictudes");
+                    log.debug("Inicializar actualizaciòn de solictud: {}", updateLoanApplicationDTO.getId());
                     return updateLoanApplicationUseCase.execute(
-                            loanApplicationApiRestMapper.updateLoanApplicationDTOToLoanApplication(updateLoanApplicationDTO)
+                                loanApplicationApiRestMapper.updateLoanApplicationDTOToLoanApplication(updateLoanApplicationDTO)
                             )
-                            .map(dto -> new GenericResponseDTO<>(HttpStatus.OK, ResponseCode.MSSO001, dto))
-                            .doOnSuccess(response -> log.debug("Finalizar consulta de solicitudes"));
+                            .thenReturn(new GenericResponseDTO<>(HttpStatus.OK, ResponseCode.MSSO001, null))
+                            .doOnSuccess(response -> log.debug("Finalizar actualizaciòn de solicitud: {}", updateLoanApplicationDTO.getId()));
                 }),
                 "updateLoanApllications");
     }

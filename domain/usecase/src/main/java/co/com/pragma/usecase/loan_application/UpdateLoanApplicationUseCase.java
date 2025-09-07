@@ -1,5 +1,7 @@
 package co.com.pragma.usecase.loan_application;
 
+import co.com.pragma.model.error.NotFoundException;
+import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplication;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationRepository;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationSQSSenderGateway;
@@ -7,6 +9,7 @@ import co.com.pragma.model.loan_application.gateways.LoanApplicationStatusReposi
 import co.com.pragma.model.loan_application.util.LoanApplicationStatus;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
@@ -19,12 +22,19 @@ public class UpdateLoanApplicationUseCase {
 
     public Mono<Void> execute(LoanApplication loanApplication) {
         return loanApplicationStatusRepository.findByName(loanApplication.getStatus().getName())
-                        .flatMap(status ->
-                            loanApplicationRepository.save(loanApplication)
+                .switchIfEmpty(Mono.error(new NotFoundException(ResponseCode.MSSO010)))
+                .flatMap(status -> {
+                            loanApplication.setLoanApplicationStatusId(status.getId());
+                            return loanApplicationRepository.save(loanApplication)
                                     .filter(loanApp -> List.of(LoanApplicationStatus.APPROVED.name(), LoanApplicationStatus.REJECTED.name())
                                             .contains(status.getName()))
-                                    .flatMap(application -> loanApplicationSQSSenderGateway.send(loanApplication))
-                        )
+                                    .flatMap(application -> loanApplicationSQSSenderGateway.send(loanApplication)
+                                            .subscribeOn(Schedulers.boundedElastic())
+                                            .onErrorResume(e -> Mono.empty())
+                                            .thenReturn(application)
+                                    );
+                        }
+                )
                 .then();
     }
 

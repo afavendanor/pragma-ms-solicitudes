@@ -5,6 +5,8 @@ import co.com.pragma.model.error.FieldError;
 import co.com.pragma.model.error.ResponseCode;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.UnexpectedTypeException;
+import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -76,9 +78,9 @@ public class GlobalExceptionHandler {
         return Mono.just(ResponseEntity.badRequest().body(respuesta));
     }
 
-    @ExceptionHandler({IllegalArgumentException.class})
-    public Mono<ResponseEntity<GenericResponseDTO<Map<String, String>>>> handleWIllegalArgumentException(
-            IllegalArgumentException ex) {
+    @ExceptionHandler({IllegalArgumentException.class, UnexpectedTypeException.class})
+    public Mono<ResponseEntity<GenericResponseDTO<Map<String, String>>>> handleValidationException(
+            ValidationException ex) {
         List<FieldError> fieldErrors = new ArrayList<>();
 
         fieldErrors.add(new FieldError(

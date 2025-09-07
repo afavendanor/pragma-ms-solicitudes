@@ -12,6 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class LoanApplication {
+    private Long id;
     private String identification;
     private Double amount;
     private Integer term;

@@ -31,8 +31,6 @@ import reactor.core.publisher.Mono;
 @Validated
 public class LoanApplicationController {
 
-    private String apiKey;
-
     private final LoanApplicationHandler loanApplicationHandler;
 
     @PostMapping(value = "/application", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -57,9 +55,9 @@ public class LoanApplicationController {
             @ApiResponse(responseCode = "200", description = "solicitud actualizada correctamente"),
             @ApiResponse(responseCode = "400", description = "Los datos recibidos no cumplen con la obligatoriedad o formatos esperados", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Error inesperado durante el proceso", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class)))})
-    public Mono<ResponseEntity<GenericResponseDTO<Void>>> updateLoanApplication(
+    public Mono<ResponseEntity<GenericResponseDTO<Object>>> updateLoanApplication(
             @Valid @RequestBody UpdateLoanApplicationDTO updateLoanApplicationDTO) {
-        return loanApplicationHandler.updateLoanApllications(updateLoanApplicationDTO)
+        return loanApplicationHandler.updateLoanAplications(updateLoanApplicationDTO)
                 .map(genericResponseDto -> ResponseEntity.status(genericResponseDto.getResponseCode()).body(genericResponseDto));
 
     }

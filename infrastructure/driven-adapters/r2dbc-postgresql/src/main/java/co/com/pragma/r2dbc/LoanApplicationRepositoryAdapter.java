@@ -106,7 +106,7 @@ public class LoanApplicationRepositoryAdapter extends ReactiveAdapterOperations<
                                 Double totalMonthlyDebtApprovedRequests = tuple.getT3();
 
                                 if (aplications.isEmpty()) {
-                                    return Mono.error(new NotFoundException(ResponseCode.MSSO008));
+                                    return Mono.error(new NotFoundException(ResponseCode.MSSO004));
                                 }
 
                                 int totalPages = (int) Math.ceil((double) total / size);

@@ -14,7 +14,7 @@ import lombok.ToString;
 @ToString
 @Schema(description = "Modelo de entrada para crear un solicitud de crèdito.")
 public class UpdateLoanApplicationDTO {
-    @NotBlank(message = "Id del crèdito es requerida.")
+    @NotNull(message = "Id del crèdito es requerido.")
     @Schema(description = "Id del crèdito a aactualizar.")
     private Long id;
     @NotBlank(message = "Identificaciòn es requerida.")

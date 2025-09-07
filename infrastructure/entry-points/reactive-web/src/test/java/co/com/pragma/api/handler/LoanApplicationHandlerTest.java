@@ -3,6 +3,7 @@ package co.com.pragma.api.handler;
 import co.com.pragma.api.dto.CreateLoanApplicationDTO;
 import co.com.pragma.api.dto.LoanApplicationPageDTO;
 import co.com.pragma.api.dto.LoanApplicationPageListDTO;
+import co.com.pragma.api.dto.UpdateLoanApplicationDTO;
 import co.com.pragma.api.mapper.LoanApplicationApiRestMapper;
 import co.com.pragma.api.security.utils.JwtUtils;
 import co.com.pragma.model.error.InternalErrorException;
@@ -10,9 +11,10 @@ import co.com.pragma.model.loan_application.LoanApplication;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplicationPage;
 import co.com.pragma.model.loan_application.LoanApplicationPageList;
-import co.com.pragma.model.loan_application.util.LoanApplicationStatus;
+import co.com.pragma.model.loan_application.LoanApplicationStatus;
 import co.com.pragma.usecase.loan_application.ListLoanApplicationUseCase;
 import co.com.pragma.usecase.loan_application.RegisterLoanApplicationUseCase;
+import co.com.pragma.usecase.loan_application.UpdateLoanApplicationUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,6 +41,9 @@ class LoanApplicationHandlerTest {
 
     @Mock
     private ListLoanApplicationUseCase listLoanApplicationUseCase;
+
+    @Mock
+    private UpdateLoanApplicationUseCase updateLoanApplicationUseCase;
 
     @Mock
     private LoanApplicationApiRestMapper loanApplicationApiRestMapper;
@@ -131,6 +136,28 @@ class LoanApplicationHandlerTest {
     }
 
     @Test
+    void guardarLoanApplication_deberiaRetornarError_cuandoDiferentesIds() {
+        // Arrange
+        CreateLoanApplicationDTO createLoanApplicationDTO = new CreateLoanApplicationDTO();
+        createLoanApplicationDTO.setIdentification("id-1234");
+
+        when(jwtUtils.getClaim(anyString(), anyString()))
+                .thenReturn(Mono.justOrEmpty("id-123"));
+
+        // Act & Assert
+        StepVerifier.create(loanApplicationHandler.createLoanApplication(createLoanApplicationDTO, TOKEN))
+                .assertNext(respuesta -> {
+                    assertNotNull(respuesta);
+                    assertEquals(HttpStatus.UNAUTHORIZED.value(), respuesta.getResponseCode());
+                    assertNull(respuesta.getData());
+                })
+                .verifyComplete();
+
+        verify(loanApplicationApiRestMapper, never()).createLoanApplicationDTOToLoanApplication(any(CreateLoanApplicationDTO.class));
+        verify(registerLoanApplicationUseCase, never()).execute(any(LoanApplication.class));
+    }
+
+    @Test
     void listarLoanApplication_debeRetornarRespuestaExitosa() {
         // Arrange
         LoanApplicationPageDTO loanApplicationPageDTO = new LoanApplicationPageDTO();
@@ -148,7 +175,7 @@ class LoanApplicationHandlerTest {
                 .thenReturn(loanApplicationPageListDTO);
 
         // Act & Assert
-        StepVerifier.create(loanApplicationHandler.listLoanApllications(LoanApplicationStatus.PENDING, 1, 5))
+        StepVerifier.create(loanApplicationHandler.listLoanApllications(co.com.pragma.model.loan_application.util.LoanApplicationStatus.PENDING, 1, 5))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
                     assertEquals(HttpStatus.OK.value(), respuesta.getResponseCode());
@@ -168,7 +195,7 @@ class LoanApplicationHandlerTest {
                 .thenReturn(Mono.error(new InternalErrorException(ResponseCode.MSSO000, "Fallo de prueba")));
 
         // Act & Assert
-        StepVerifier.create(loanApplicationHandler.listLoanApllications(LoanApplicationStatus.PENDING, 1, 5))
+        StepVerifier.create(loanApplicationHandler.listLoanApllications(co.com.pragma.model.loan_application.util.LoanApplicationStatus.PENDING, 1, 5))
                 .assertNext(respuesta -> {
                     assertNotNull(respuesta);
                     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), respuesta.getResponseCode());
@@ -178,5 +205,63 @@ class LoanApplicationHandlerTest {
 
         verify(loanApplicationApiRestMapper, never()).loanApplicationPageListToLoanApplicationPageListDTO(any(LoanApplicationPageList.class));
         verify(listLoanApplicationUseCase, times(1)).execute(any(), anyInt(), anyInt());
+    }
+
+    @Test
+    void actualizarLoanApplication_debeRetornarRespuestaExitosa() {
+        // Arrange
+        UpdateLoanApplicationDTO updateLoanApplicationDTO = new UpdateLoanApplicationDTO();
+        updateLoanApplicationDTO.setIdentification("CC102254");
+
+        LoanApplication loanApplication = new LoanApplication();
+        LoanApplicationStatus loanApplicationStatus = new LoanApplicationStatus();
+        loanApplicationStatus.setName(co.com.pragma.model.loan_application.util.LoanApplicationStatus.PENDING_REVIEW.name());
+        loanApplication.setStatus(loanApplicationStatus);
+
+        when(updateLoanApplicationUseCase.execute(any(LoanApplication.class)))
+                .thenReturn(Mono.empty());
+        when(loanApplicationApiRestMapper.updateLoanApplicationDTOToLoanApplication(any(UpdateLoanApplicationDTO.class)))
+                .thenReturn(loanApplication);
+
+        // Act & Assert
+        StepVerifier.create(loanApplicationHandler.updateLoanAplications(updateLoanApplicationDTO))
+                .assertNext(respuesta -> {
+                    assertNotNull(respuesta);
+                    assertEquals(HttpStatus.OK.value(), respuesta.getResponseCode());
+                    assertNull(respuesta.getData());
+                })
+                .verifyComplete();
+
+        verify(loanApplicationApiRestMapper, times(1)).updateLoanApplicationDTOToLoanApplication(any(UpdateLoanApplicationDTO.class));
+        verify(updateLoanApplicationUseCase, times(1)).execute(any(LoanApplication.class));
+    }
+
+    @Test
+    void actualizarLoanApplication_deberiaRetornarError_cuandoFalla() {
+        // Arrange
+        UpdateLoanApplicationDTO updateLoanApplicationDTO = new UpdateLoanApplicationDTO();
+        updateLoanApplicationDTO.setIdentification("CC102254");
+
+        LoanApplication loanApplication = new LoanApplication();
+        LoanApplicationStatus loanApplicationStatus = new LoanApplicationStatus();
+        loanApplicationStatus.setName(co.com.pragma.model.loan_application.util.LoanApplicationStatus.PENDING_REVIEW.name());
+        loanApplication.setStatus(loanApplicationStatus);
+
+        when(loanApplicationApiRestMapper.updateLoanApplicationDTOToLoanApplication(any(UpdateLoanApplicationDTO.class)))
+                .thenReturn(loanApplication);
+        when(updateLoanApplicationUseCase.execute(any(LoanApplication.class)))
+                .thenReturn(Mono.error(new InternalErrorException(ResponseCode.MSSO000, "Fallo de prueba")));
+
+        // Act & Assert
+        StepVerifier.create(loanApplicationHandler.updateLoanAplications(updateLoanApplicationDTO))
+                .assertNext(respuesta -> {
+                    assertNotNull(respuesta);
+                    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), respuesta.getResponseCode());
+                    assertNull(respuesta.getData());
+                })
+                .verifyComplete();
+
+        verify(loanApplicationApiRestMapper, times(1)).updateLoanApplicationDTOToLoanApplication(any(UpdateLoanApplicationDTO.class));
+        verify(updateLoanApplicationUseCase, times(1)).execute(any(LoanApplication.class));
     }
 }

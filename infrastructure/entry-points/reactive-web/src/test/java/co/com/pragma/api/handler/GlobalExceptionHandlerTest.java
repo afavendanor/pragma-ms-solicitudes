@@ -5,6 +5,7 @@ import co.com.pragma.model.error.ResponseCode;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -86,12 +87,12 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void testHandleWIllegalArgumentException() {
+    void testHandleValidationException() {
         // Arrange
-        IllegalArgumentException ex = new IllegalArgumentException("mensaje de prueba");
+        ValidationException ex = new ValidationException("mensaje de prueba");
 
         // Act
-        Mono<ResponseEntity<GenericResponseDTO<Map<String, String>>>> responseMono = handler.handleWIllegalArgumentException(ex);
+        Mono<ResponseEntity<GenericResponseDTO<Map<String, String>>>> responseMono = handler.handleValidationException(ex);
 
         // Assert
         StepVerifier.create(responseMono)

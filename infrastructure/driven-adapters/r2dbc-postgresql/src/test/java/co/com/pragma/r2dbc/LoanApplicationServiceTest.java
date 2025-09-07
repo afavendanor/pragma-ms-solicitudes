@@ -98,7 +98,7 @@ class LoanApplicationServiceTest {
                 .thenReturn(Flux.just(entity));
 
 
-        Mono<LoanApplicationPageList> result = repositoryAdapter.getFilterList(1L, 1, 10);
+        Mono<LoanApplicationPageList> result = repositoryAdapter.getFilterList(co.com.pragma.model.loan_application.util.LoanApplicationStatus.APPROVED, 1, 10);
 
         StepVerifier.create(result)
                 .expectNextMatches(list -> list.getLoanApplications().size() == 1
@@ -141,7 +141,7 @@ class LoanApplicationServiceTest {
         when(loanApplicationReactiveRepository.findByloanApplicationStatusId(anyLong()))
                 .thenReturn(Flux.just(entity));
 
-        Mono<LoanApplicationPageList> result = repositoryAdapter.getFilterList(1L, 1, 10);
+        Mono<LoanApplicationPageList> result = repositoryAdapter.getFilterList(co.com.pragma.model.loan_application.util.LoanApplicationStatus.PENDING, 1, 10);
 
         StepVerifier.create(result)
                 .expectErrorMatches(NotFoundException.class::isInstance)
@@ -168,7 +168,7 @@ class LoanApplicationServiceTest {
         when(reactiveSelectMock.matching(any(Query.class))).thenReturn(reactiveSelectMock);
         when(reactiveSelectMock.all()).thenReturn(Flux.error(new RuntimeException("DB error")));
 
-        Mono<LoanApplicationPageList> result = repositoryAdapter.getFilterList(1L, 1, 10);
+        Mono<LoanApplicationPageList> result = repositoryAdapter.getFilterList(co.com.pragma.model.loan_application.util.LoanApplicationStatus.PENDING, 1, 10);
 
         StepVerifier.create(result)
                 .expectErrorMatches(InternalErrorException.class::isInstance)

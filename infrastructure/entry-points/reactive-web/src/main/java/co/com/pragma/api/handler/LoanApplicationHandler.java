@@ -3,12 +3,15 @@ package co.com.pragma.api.handler;
 import co.com.pragma.api.dto.CreateLoanApplicationDTO;
 import co.com.pragma.api.dto.GenericResponseDTO;
 import co.com.pragma.api.dto.LoanApplicationPageListDTO;
+import co.com.pragma.api.dto.UpdateLoanApplicationDTO;
 import co.com.pragma.api.mapper.LoanApplicationApiRestMapper;
 import co.com.pragma.api.security.utils.JwtUtils;
 import co.com.pragma.model.error.LoginException;
 import co.com.pragma.model.error.ResponseCode;
+import co.com.pragma.model.loan_application.util.LoanApplicationStatus;
 import co.com.pragma.usecase.loan_application.ListLoanApplicationUseCase;
 import co.com.pragma.usecase.loan_application.RegisterLoanApplicationUseCase;
+import co.com.pragma.usecase.loan_application.UpdateLoanApplicationUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -26,6 +29,7 @@ public class LoanApplicationHandler {
 
     private final RegisterLoanApplicationUseCase registerLoanApplicationUseCase;
     private final ListLoanApplicationUseCase listLoanApplicationUseCase;
+    private final UpdateLoanApplicationUseCase updateLoanApplicationUseCase;
     private final LoanApplicationApiRestMapper loanApplicationApiRestMapper;
     private final JwtUtils jwtUtils;
 
@@ -59,7 +63,21 @@ public class LoanApplicationHandler {
         );
     }
 
-    public Mono<GenericResponseDTO<LoanApplicationPageListDTO>> listLoanApllications(Long status, int page, int size) {
+    public Mono<GenericResponseDTO<Object>> updateLoanAplications(UpdateLoanApplicationDTO updateLoanApplicationDTO) {
+        ErrorHandler<Object> errorHandler = new ErrorHandler<>();
+        return errorHandler.addErrors(
+                Mono.defer(() -> {
+                    log.debug("Inicializar actualizaciòn de solictud: {}", updateLoanApplicationDTO.getId());
+                    return updateLoanApplicationUseCase.execute(
+                                loanApplicationApiRestMapper.updateLoanApplicationDTOToLoanApplication(updateLoanApplicationDTO)
+                            )
+                            .thenReturn(new GenericResponseDTO<>(HttpStatus.OK, ResponseCode.MSSO001, null))
+                            .doOnSuccess(response -> log.debug("Finalizar actualizaciòn de solicitud: {}", updateLoanApplicationDTO.getId()));
+                }),
+                "updateLoanApllications");
+    }
+
+    public Mono<GenericResponseDTO<LoanApplicationPageListDTO>> listLoanApllications(LoanApplicationStatus status, int page, int size) {
         ErrorHandler<LoanApplicationPageListDTO> errorHandler = new ErrorHandler<>();
         return errorHandler.addErrors(
                 Mono.defer(() -> {

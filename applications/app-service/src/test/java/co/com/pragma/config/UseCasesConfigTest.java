@@ -1,6 +1,7 @@
 package co.com.pragma.config;
 
 import co.com.pragma.model.loan_application.gateways.LoanApplicationRepository;
+import co.com.pragma.model.loan_application.gateways.LoanApplicationSQSSenderGateway;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationStatusRepository;
 import co.com.pragma.model.loan_application.gateways.LoanTypeRepository;
 import co.com.pragma.model.user.gateways.UserRepository;
@@ -58,6 +59,11 @@ class UseCasesConfigTest {
         @Bean
         public UserRepository userRepository() {
             return Mockito.mock(UserRepository.class);
+        }
+
+        @Bean
+        public LoanApplicationSQSSenderGateway loanApplicationSQSSenderGateway() {
+            return Mockito.mock(LoanApplicationSQSSenderGateway.class);
         }
     }
 

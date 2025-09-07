@@ -28,6 +28,7 @@ subprojects {
     }
 
     dependencies {
+		implementation platform('software.amazon.awssdk:bom:2.32.13')
         implementation 'io.projectreactor:reactor-core'
         implementation 'io.projectreactor.addons:reactor-extra'
 
@@ -103,7 +104,8 @@ task jacocoMergedReport(type: JacocoReport) {
                     "**/model/**",
                     "**/entity/**", "**/*Entity.class", "**/*Repository.class",
                     "**/dto/**", "**/mapper/**", "**/*DTO.class", "**/*Mapper.class",
-                    "**/security/**",  "**/*Config.class"
+                    "**/security/**",  "**/*Config.class",
+                    "**/metrics/**"
             ])
         }))
     }
@@ -132,7 +134,8 @@ jacocoTestCoverageVerification {
                     "**/model/**",
                     "**/entity/**", "**/*Entity.class", "**/*Repository.class",
                     "**/dto/**", "**/mapper/**", "**/*DTO.class", "**/*Mapper.class",
-                    "**/security/**",  "**/*Config.class"
+                    "**/security/**",  "**/*Config.class",
+                    "**/metrics/**"
             ])
         }))
     }

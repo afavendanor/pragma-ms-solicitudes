@@ -5,6 +5,7 @@ import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplicationPage;
 import co.com.pragma.model.loan_application.LoanApplicationPageList;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationRepository;
+import co.com.pragma.model.loan_application.util.LoanApplicationStatus;
 import co.com.pragma.model.user.gateways.UserRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -17,7 +18,7 @@ public class ListLoanApplicationUseCase {
     private final LoanApplicationRepository loanApplicationRepository;
     private final UserRepository userRepository;
 
-    public Mono<LoanApplicationPageList> execute(Long status, int page, int size) {
+    public Mono<LoanApplicationPageList> execute(LoanApplicationStatus status, int page, int size) {
         return loanApplicationRepository.getFilterList(status, page, size)
                 .filter(loanApplicationPageList -> !loanApplicationPageList.getLoanApplications().isEmpty())
                 .switchIfEmpty(Mono.error(new NotFoundException(ResponseCode.MSSO004)))

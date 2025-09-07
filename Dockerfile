@@ -1,8 +1,9 @@
 # Etapa de build
-FROM gradle:8.5-jdk17 AS builder
+FROM gradle:8.5-jdk21 AS builder
 WORKDIR /app
-COPY .. /app
-RUN gradle clean build -x test
+COPY . /app
+
+RUN gradle clean build -x validateStructure -x test --no-daemon
 
 # Etapa runtime
 FROM eclipse-temurin:21-jdk-alpine

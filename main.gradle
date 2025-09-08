@@ -16,12 +16,14 @@ subprojects {
 
     compileJava.dependsOn validateStructure
 
+    if (project.name == 'app-service') {
+        apply plugin: 'org.springframework.boot'
+    }
+
     java {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-
-    build.dependsOn 'pitest'
 
     test {
         useJUnitPlatform()

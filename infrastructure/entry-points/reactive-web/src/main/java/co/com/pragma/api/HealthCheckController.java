@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,8 +24,8 @@ public class HealthCheckController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "El servicio está funcionando correctamente.")
     })
-    public ResponseEntity<GenericResponseDTO<String>>  healthCheck() {
-        return ResponseEntity.ok(new GenericResponseDTO<>(HttpStatus.OK, ResponseCode.MSSO001, "Service is up and running"));
+    public Mono<ResponseEntity<GenericResponseDTO<String>>> healthCheck() {
+        return Mono.just(ResponseEntity.ok(new GenericResponseDTO<>(HttpStatus.OK, ResponseCode.MSSO001, "Service is up and running")));
 
     }
 }

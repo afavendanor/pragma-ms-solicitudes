@@ -1,5 +1,3 @@
-apply plugin: 'org.springframework.boot'
-
 dependencies {
 	implementation project(':sqs-sender')
 	implementation project(':metrics')
@@ -18,17 +16,11 @@ dependencies {
     testImplementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
-tasks.register('explodedJar', Copy) {
-    with jar
-    into layout.buildDirectory.dir("exploded")
-}
-
 jar {
-    // To disable the *-plain.jar
     enabled = false
 }
 
 bootJar {
-    // Sets output jar name
-    archiveFileName = "${project.getParent().getName()}.${archiveExtension.get()}"
+    archiveFileName = "${rootProject.name}.jar"
+    mainClass.set('co.com.pragma.MainApplication')
 }

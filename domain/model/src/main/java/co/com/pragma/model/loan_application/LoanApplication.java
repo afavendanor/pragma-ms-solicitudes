@@ -13,7 +13,6 @@ import lombok.Setter;
 @Builder(toBuilder = true)
 public class LoanApplication {
     private Long id;
-    private String identification;
     private Double amount;
     private Integer term;
     private String email;

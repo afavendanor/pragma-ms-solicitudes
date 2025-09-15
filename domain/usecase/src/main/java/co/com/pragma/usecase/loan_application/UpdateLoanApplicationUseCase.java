@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 public class UpdateLoanApplicationUseCase {
@@ -32,7 +33,12 @@ public class UpdateLoanApplicationUseCase {
                                             .subscribeOn(Schedulers.boundedElastic())
                                             .onErrorResume(e -> Mono.empty())
                                             .thenReturn(application)
-                                    );
+                                    )
+                                    .filter(loanApp -> Objects.equals(LoanApplicationStatus.APPROVED.name(), status.getName()))
+                                    .flatMap(loanApp -> loanApplicationSNSSenderGateway.send(loanApp, "APPROVED")
+                                            .subscribeOn(Schedulers.boundedElastic())
+                                            .onErrorResume(e -> Mono.empty())
+                                            .thenReturn(loanApp));
                         }
                 )
                 .then();

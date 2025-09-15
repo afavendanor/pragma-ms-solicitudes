@@ -60,7 +60,7 @@ class UpdateLoanApplicationUseCaseTest {
         StepVerifier.create(updateLoanApplicationUseCase.execute(loanApplication))
                 .verifyComplete();
 
-        verify(loanApplicationSNSSenderGateway, times(1)).send(any(LoanApplication.class), anyString());
+        verify(loanApplicationSNSSenderGateway, times(2)).send(any(LoanApplication.class), anyString());
     }
 
     @Test
@@ -99,6 +99,6 @@ class UpdateLoanApplicationUseCaseTest {
         StepVerifier.create(updateLoanApplicationUseCase.execute(loanApplication))
                 .verifyComplete();
 
-        verify(loanApplicationSNSSenderGateway, times(1)).send(any(LoanApplication.class), anyString());
+        verify(loanApplicationSNSSenderGateway, times(2)).send(any(LoanApplication.class), anyString());
     }
 }

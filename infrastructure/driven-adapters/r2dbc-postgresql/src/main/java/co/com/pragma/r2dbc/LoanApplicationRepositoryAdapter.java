@@ -14,6 +14,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.Logger;
 import reactor.util.Loggers;
@@ -125,6 +126,15 @@ public class LoanApplicationRepositoryAdapter extends ReactiveAdapterOperations<
                 .onErrorMap(ex -> (ex instanceof NotFoundException) ? ex : new InternalErrorException(ResponseCode.MSSO000));
 
     }
+
+    @Override
+    public Flux<LoanApplication> getByEmailAndStatus(String email, Long statusId) {
+        return repository.findByEmailAndLoanApplicationStatusId(email, statusId)
+                .map(this::toEntity)
+                .doOnError(e -> log.error("Error final en listar solicitudes por email y estado: {}", e.getMessage(), e))
+                .onErrorMap(ex -> (ex instanceof NotFoundException) ? ex : new InternalErrorException(ResponseCode.MSSO000));
+    }
+
 
     public Mono<Double> totalMonthlyDebtApprovedRequests() {
         return loanApplicationStatusReactiveRepository.findByName(co.com.pragma.model.loan_application.util.LoanApplicationStatus.APPROVED.name())

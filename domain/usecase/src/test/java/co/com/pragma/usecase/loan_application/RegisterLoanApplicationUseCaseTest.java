@@ -7,6 +7,7 @@ import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplicationStatus;
 import co.com.pragma.model.loan_application.LoanType;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationRepository;
+import co.com.pragma.model.loan_application.gateways.LoanApplicationSNSSenderGateway;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationStatusRepository;
 import co.com.pragma.model.loan_application.gateways.LoanTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +35,9 @@ class RegisterLoanApplicationUseCaseTest {
 
     @Mock
     private LoanTypeRepository loanTypeRepository;
+
+    @Mock
+    private LoanApplicationSNSSenderGateway loanApplicationSNSSenderGateway;
 
     @InjectMocks
     private RegisterLoanApplicationUseCase registerLoanApplicationUseCase;
@@ -65,6 +69,32 @@ class RegisterLoanApplicationUseCaseTest {
                 .thenReturn(Mono.just(loanType));
         when(loanApplicationStatusRepository.findByName(anyString()))
                 .thenReturn(Mono.just(loanApplicationStatus));
+        when(loanApplicationSNSSenderGateway.send(any(), anyString()))
+                .thenReturn(Mono.just("Ok"));
+
+        // Act & Assert
+        StepVerifier.create(registerLoanApplicationUseCase.execute(loanApplication))
+                .expectNextMatches(resultado -> resultado.equals(loanApplication))
+                .verifyComplete();
+
+        verify(loanApplicationRepository, times(1)).save(any(LoanApplication.class));
+    }
+
+    @Test
+    void createLoanApplication_errorSNS() {
+        // Arrange
+        LoanApplication loanApplication = new LoanApplication();
+        loanApplication.setLoanTypeId(1L);
+        loanType.setAutomaticValidation(Boolean.TRUE);
+
+        when(loanApplicationRepository.save(any(LoanApplication.class)))
+                .thenReturn(Mono.just(loanApplication));
+        when(loanTypeRepository.findById(anyLong()))
+                .thenReturn(Mono.just(loanType));
+        when(loanApplicationStatusRepository.findByName(anyString()))
+                .thenReturn(Mono.just(loanApplicationStatus));
+        when(loanApplicationSNSSenderGateway.send(any(), anyString()))
+                .thenReturn(Mono.error(new InternalErrorException(ResponseCode.MSSO000)));
 
         // Act & Assert
         StepVerifier.create(registerLoanApplicationUseCase.execute(loanApplication))

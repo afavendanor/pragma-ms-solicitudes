@@ -1,6 +1,7 @@
 package co.com.pragma.api.mapper;
 
 import co.com.pragma.api.dto.CreateLoanApplicationDTO;
+import co.com.pragma.api.dto.LoanApplicationDTO;
 import co.com.pragma.api.dto.LoanApplicationPageListDTO;
 import co.com.pragma.api.dto.UpdateLoanApplicationDTO;
 import co.com.pragma.model.loan_application.LoanApplication;
@@ -27,5 +28,8 @@ public interface LoanApplicationApiRestMapper {
             loanApplication.setStatus(loanApplicationStatus);
         }
     }
+
+    @Mapping(target = "interestRate", source = "loanType.interestRate")
+    LoanApplicationDTO loanApplicationToLoanApplicationDTO(LoanApplication loanApplication);
 
 }

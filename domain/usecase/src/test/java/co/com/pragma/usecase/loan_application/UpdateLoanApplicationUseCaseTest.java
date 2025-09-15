@@ -4,7 +4,7 @@ import co.com.pragma.model.error.NotFoundException;
 import co.com.pragma.model.loan_application.LoanApplication;
 import co.com.pragma.model.loan_application.LoanApplicationStatus;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationRepository;
-import co.com.pragma.model.loan_application.gateways.LoanApplicationSQSSenderGateway;
+import co.com.pragma.model.loan_application.gateways.LoanApplicationSNSSenderGateway;
 import co.com.pragma.model.loan_application.gateways.LoanApplicationStatusRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ class UpdateLoanApplicationUseCaseTest {
     private LoanApplicationRepository loanApplicationRepository;
 
     @Mock
-    private LoanApplicationSQSSenderGateway loanApplicationSQSSenderGateway;
+    private LoanApplicationSNSSenderGateway loanApplicationSNSSenderGateway;
 
     @InjectMocks
     private UpdateLoanApplicationUseCase updateLoanApplicationUseCase;
@@ -54,13 +54,13 @@ class UpdateLoanApplicationUseCaseTest {
                 .thenReturn(Mono.just(status));
         when(loanApplicationRepository.save(any()))
                 .thenReturn(Mono.just(loanApplication));
-        when(loanApplicationSQSSenderGateway.send(any()))
+        when(loanApplicationSNSSenderGateway.send(any(), anyString()))
                 .thenReturn(Mono.empty());
 
         StepVerifier.create(updateLoanApplicationUseCase.execute(loanApplication))
                 .verifyComplete();
 
-        verify(loanApplicationSQSSenderGateway, times(1)).send(any(LoanApplication.class));
+        verify(loanApplicationSNSSenderGateway, times(1)).send(any(LoanApplication.class), anyString());
     }
 
     @Test
@@ -84,7 +84,7 @@ class UpdateLoanApplicationUseCaseTest {
         StepVerifier.create(updateLoanApplicationUseCase.execute(loanApplication))
                 .verifyComplete();
 
-        verify(loanApplicationSQSSenderGateway, never()).send(any());
+        verify(loanApplicationSNSSenderGateway, never()).send(any(), anyString());
     }
 
     @Test
@@ -93,12 +93,12 @@ class UpdateLoanApplicationUseCaseTest {
                 .thenReturn(Mono.just(status));
         when(loanApplicationRepository.save(any()))
                 .thenReturn(Mono.just(loanApplication));
-        when(loanApplicationSQSSenderGateway.send(any()))
-                .thenReturn(Mono.error(new RuntimeException("SQS down")));
+        when(loanApplicationSNSSenderGateway.send(any(), anyString()))
+                .thenReturn(Mono.error(new RuntimeException("SNS down")));
 
         StepVerifier.create(updateLoanApplicationUseCase.execute(loanApplication))
                 .verifyComplete();
 
-        verify(loanApplicationSQSSenderGateway, times(1)).send(any(LoanApplication.class));
+        verify(loanApplicationSNSSenderGateway, times(1)).send(any(LoanApplication.class), anyString());
     }
 }

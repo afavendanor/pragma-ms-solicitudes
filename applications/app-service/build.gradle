@@ -1,5 +1,5 @@
 dependencies {
-	implementation project(':sqs-sender')
+	implementation project(':sns-sender')
 	implementation project(':metrics')
 	implementation 'software.amazon.awssdk:sts'
 	implementation project(':rest-consumer')

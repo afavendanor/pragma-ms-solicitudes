@@ -9,4 +9,6 @@ public interface LoanApplicationReactiveRepository extends ReactiveCrudRepositor
 
     Flux<LoanApplicationEntity> findByloanApplicationStatusId(Long loanApplicationStatusId);
 
+    Flux<LoanApplicationEntity> findByEmailAndLoanApplicationStatusId(String email, Long loanApplicationStatusId);
+
 }

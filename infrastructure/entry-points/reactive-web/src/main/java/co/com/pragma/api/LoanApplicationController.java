@@ -1,9 +1,6 @@
 package co.com.pragma.api;
 
-import co.com.pragma.api.dto.CreateLoanApplicationDTO;
-import co.com.pragma.api.dto.GenericResponseDTO;
-import co.com.pragma.api.dto.LoanApplicationPageListDTO;
-import co.com.pragma.api.dto.UpdateLoanApplicationDTO;
+import co.com.pragma.api.dto.*;
 import co.com.pragma.api.handler.LoanApplicationHandler;
 import co.com.pragma.model.loan_application.util.LoanApplicationStatus;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -76,6 +74,22 @@ public class LoanApplicationController {
             @RequestParam(name = "size", defaultValue = "10") @Min(value = 1, message = "El tamaño de página debe ser mayor a 0") int size
     ) {
         return loanApplicationHandler.listLoanApllications(status, page, size)
+                .map(genericResponseDto -> ResponseEntity.status(genericResponseDto.getResponseCode()).body(genericResponseDto));
+    }
+
+    @GetMapping(value = "/applications/by-email-status", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('ROLE_API_KEY', 'ROLE_ADMIN')")
+    @Operation(summary = "Listar solicitudes", description = "Permite recibir parámetros para realizar filtro a la lista de solicitudes en la app")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "El servicio responde correctamente"),
+            @ApiResponse(responseCode = "400", description = "Los datos recibidos no cumplen con la obligatoriedad o formatos esperados", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "No se encuentran registros con los datos ingresados", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Error inesperado durante el proceso", content = @Content(schema = @Schema(implementation = GenericResponseDTO.class)))})
+    public Mono<ResponseEntity<GenericResponseDTO<Object>>> listLoanApplicationsByEmailAndStatus(
+            @RequestParam(name = "email") @Email(message = "El estado es requerido.") String email,
+            @RequestParam(name = "status") @NotNull(message = "El estado es requerido.") LoanApplicationStatus status
+    ) {
+        return loanApplicationHandler.listLoanApllicationsByEmailAndStatus(email, status)
                 .map(genericResponseDto -> ResponseEntity.status(genericResponseDto.getResponseCode()).body(genericResponseDto));
     }
 

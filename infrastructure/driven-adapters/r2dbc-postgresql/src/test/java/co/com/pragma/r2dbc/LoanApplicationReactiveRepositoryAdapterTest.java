@@ -20,8 +20,7 @@ import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -132,6 +131,36 @@ class LoanApplicationReactiveRepositoryAdapterTest {
                 .expectErrorSatisfies(error -> {
                     assertInstanceOf(DuplicateEntryException.class, error);
                     assertEquals(ResponseCode.MSSO003.getMessage(), error.getMessage());
+                })
+                .verify();
+    }
+
+    @Test
+    void mustFindValueByEmailAndStatus() {
+
+        when(repository.findByEmailAndLoanApplicationStatusId(anyString(), anyLong()))
+                .thenReturn(Flux.just(entity));
+        when(mapper.map(entity, LoanApplication.class)).thenReturn(loanApplication);
+
+        Flux<LoanApplication> result = repositoryAdapter.getByEmailAndStatus("exampe@test.com", 1L);
+
+        StepVerifier.create(result)
+                .expectNextMatches(value -> value.equals(loanApplication))
+                .verifyComplete();
+    }
+
+    @Test
+    void mustFindValueByEmailAndStatusError() {
+
+        when(repository.findByEmailAndLoanApplicationStatusId(anyString(), anyLong()))
+                .thenReturn(Flux.error(new InternalErrorException(ResponseCode.MSSO000)));
+
+        Flux<LoanApplication> result = repositoryAdapter.getByEmailAndStatus("exampe@test.com", 1L);
+
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> {
+                    assertInstanceOf(InternalErrorException.class, error);
+                    assertEquals(ResponseCode.MSSO000.getMessage(), error.getMessage());
                 })
                 .verify();
     }

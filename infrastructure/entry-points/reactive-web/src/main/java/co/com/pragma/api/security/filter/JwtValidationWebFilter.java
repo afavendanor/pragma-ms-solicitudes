@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,10 +28,28 @@ import static co.com.pragma.api.security.config.TokenJwtConfig.SECRET_KEY;
 
 public class JwtValidationWebFilter implements WebFilter {
 
+    @Value("${spring.application.api-key}")
+    private String apiKeyApp;
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+
+        String xApikey = exchange.getRequest().getHeaders().getFirst("x-api-key");
+        if (apiKeyApp.equalsIgnoreCase(xApikey)) {
+            var authentication = new UsernamePasswordAuthenticationToken(
+                    "apiKeyUser",
+                    null,
+                    List.of(new SimpleGrantedAuthority("ROLE_API_KEY"))
+            );
+
+            return chain.filter(exchange)
+                    .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(
+                            Mono.just(new SecurityContextImpl(authentication))
+                    ));
+        }
+
         String header = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (header == null || !header.startsWith(PREFIX_TOKEN)) {
             return chain.filter(exchange);

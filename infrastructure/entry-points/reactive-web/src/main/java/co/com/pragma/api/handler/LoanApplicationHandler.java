@@ -1,14 +1,12 @@
 package co.com.pragma.api.handler;
 
-import co.com.pragma.api.dto.CreateLoanApplicationDTO;
-import co.com.pragma.api.dto.GenericResponseDTO;
-import co.com.pragma.api.dto.LoanApplicationPageListDTO;
-import co.com.pragma.api.dto.UpdateLoanApplicationDTO;
+import co.com.pragma.api.dto.*;
 import co.com.pragma.api.mapper.LoanApplicationApiRestMapper;
 import co.com.pragma.api.security.utils.JwtUtils;
 import co.com.pragma.model.error.LoginException;
 import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.util.LoanApplicationStatus;
+import co.com.pragma.usecase.loan_application.FindLoanApplicationByEmailAndStatusUseCase;
 import co.com.pragma.usecase.loan_application.ListLoanApplicationUseCase;
 import co.com.pragma.usecase.loan_application.RegisterLoanApplicationUseCase;
 import co.com.pragma.usecase.loan_application.UpdateLoanApplicationUseCase;
@@ -30,6 +28,7 @@ public class LoanApplicationHandler {
     private final RegisterLoanApplicationUseCase registerLoanApplicationUseCase;
     private final ListLoanApplicationUseCase listLoanApplicationUseCase;
     private final UpdateLoanApplicationUseCase updateLoanApplicationUseCase;
+    private final FindLoanApplicationByEmailAndStatusUseCase findLoanApplicationByEmailAndStatusUseCase;
     private final LoanApplicationApiRestMapper loanApplicationApiRestMapper;
     private final JwtUtils jwtUtils;
 
@@ -89,5 +88,22 @@ public class LoanApplicationHandler {
                 }),
                 "listLoanApllications");
     }
+
+    public Mono<GenericResponseDTO<Object>> listLoanApllicationsByEmailAndStatus(String email, LoanApplicationStatus status) {
+        ErrorHandler<Object> errorHandler = new ErrorHandler<>();
+        return errorHandler.addErrors(
+                Mono.defer(() -> {
+                    log.debug("Inicializar consulta de solictudes por email y estado");
+                    return findLoanApplicationByEmailAndStatusUseCase.execute(email, status)
+                            .map(loanApplicationApiRestMapper::loanApplicationToLoanApplicationDTO)
+                            .collectList()
+                            .map(dto -> dto.isEmpty()
+                                    ? new GenericResponseDTO<Object>(HttpStatus.NO_CONTENT, ResponseCode.MSSO001, null)
+                                    : new GenericResponseDTO<Object>(HttpStatus.OK, ResponseCode.MSSO001, dto))
+                            .doOnSuccess(response -> log.debug("Finalizar consulta de solicitudes por email y estado"));
+                }),
+                "listLoanApllicationsByEmailAndStatus");
+    }
+
 
 }

@@ -1,15 +1,19 @@
 spring:
   application:
-    name: "pragma-ms-solicitudes"
+    name: pragma-ms-solicitudes
+    api-key: mi-api-key-secreta
   profiles:
-    include: "r2dbc, rest-consumer, sqs-sender"
+    include: r2dbc, rest-consumer, sns-sender
+
 logging:
   level:
-    co.com.pragma: "DEBUG"
+    co.com.pragma: DEBUG
+
 server:
   port: 8080
+
 springdoc:
   api-docs:
-    path: "/v3/api-docs"
+    path: /v3/api-docs
   swagger-ui:
-    path: "/swagger-ui.html"
+    path: swagger-ui.html

@@ -1,0 +1,4 @@
+adapter:
+  sns:
+    region: ${AWS_REGION:us-east-1}
+    topicArn: ${AWS_TOPIC_SNS:arn:aws:sns:us-east-1:666734176386:loan-applications-topic}

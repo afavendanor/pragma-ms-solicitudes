@@ -3,7 +3,7 @@ spring:
     name: pragma-ms-solicitudes
     api-key: mi-api-key-secreta
   profiles:
-    include: r2dbc, rest-consumer, sqs-sender
+    include: r2dbc, rest-consumer, sns-sender
 
 logging:
   level:

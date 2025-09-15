@@ -1,9 +1,6 @@
 package co.com.pragma.api.handler;
 
-import co.com.pragma.api.dto.CreateLoanApplicationDTO;
-import co.com.pragma.api.dto.LoanApplicationPageDTO;
-import co.com.pragma.api.dto.LoanApplicationPageListDTO;
-import co.com.pragma.api.dto.UpdateLoanApplicationDTO;
+import co.com.pragma.api.dto.*;
 import co.com.pragma.api.mapper.LoanApplicationApiRestMapper;
 import co.com.pragma.api.security.utils.JwtUtils;
 import co.com.pragma.model.error.InternalErrorException;
@@ -12,6 +9,7 @@ import co.com.pragma.model.error.ResponseCode;
 import co.com.pragma.model.loan_application.LoanApplicationPage;
 import co.com.pragma.model.loan_application.LoanApplicationPageList;
 import co.com.pragma.model.loan_application.LoanApplicationStatus;
+import co.com.pragma.usecase.loan_application.FindLoanApplicationByEmailAndStatusUseCase;
 import co.com.pragma.usecase.loan_application.ListLoanApplicationUseCase;
 import co.com.pragma.usecase.loan_application.RegisterLoanApplicationUseCase;
 import co.com.pragma.usecase.loan_application.UpdateLoanApplicationUseCase;
@@ -21,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -44,6 +43,9 @@ class LoanApplicationHandlerTest {
 
     @Mock
     private UpdateLoanApplicationUseCase updateLoanApplicationUseCase;
+
+    @Mock
+    private FindLoanApplicationByEmailAndStatusUseCase findLoanApplicationByEmailAndStatusUseCase;
 
     @Mock
     private LoanApplicationApiRestMapper loanApplicationApiRestMapper;
@@ -211,7 +213,7 @@ class LoanApplicationHandlerTest {
     void actualizarLoanApplication_debeRetornarRespuestaExitosa() {
         // Arrange
         UpdateLoanApplicationDTO updateLoanApplicationDTO = new UpdateLoanApplicationDTO();
-        updateLoanApplicationDTO.setIdentification("CC102254");
+        updateLoanApplicationDTO.setEmail("correo@test.com");
 
         LoanApplication loanApplication = new LoanApplication();
         LoanApplicationStatus loanApplicationStatus = new LoanApplicationStatus();
@@ -240,7 +242,7 @@ class LoanApplicationHandlerTest {
     void actualizarLoanApplication_deberiaRetornarError_cuandoFalla() {
         // Arrange
         UpdateLoanApplicationDTO updateLoanApplicationDTO = new UpdateLoanApplicationDTO();
-        updateLoanApplicationDTO.setIdentification("CC102254");
+        updateLoanApplicationDTO.setEmail("correo@test.com");
 
         LoanApplication loanApplication = new LoanApplication();
         LoanApplicationStatus loanApplicationStatus = new LoanApplicationStatus();
@@ -264,4 +266,74 @@ class LoanApplicationHandlerTest {
         verify(loanApplicationApiRestMapper, times(1)).updateLoanApplicationDTOToLoanApplication(any(UpdateLoanApplicationDTO.class));
         verify(updateLoanApplicationUseCase, times(1)).execute(any(LoanApplication.class));
     }
+
+    @Test
+    void listLoanApplicationsByEmailAndStatus_withResults_returnsOk() {
+        // Arrange
+        String email = "andres@example.com";
+
+        LoanApplication loanApp = new LoanApplication();
+        LoanApplicationDTO dto = new LoanApplicationDTO();
+
+        when(findLoanApplicationByEmailAndStatusUseCase.execute(anyString(), any(co.com.pragma.model.loan_application.util.LoanApplicationStatus.class)))
+                .thenReturn(Flux.just(loanApp));
+        when(loanApplicationApiRestMapper.loanApplicationToLoanApplicationDTO(any()))
+                .thenReturn(dto);
+
+        // Act
+        Mono<GenericResponseDTO<Object>> result =
+                loanApplicationHandler.listLoanApllicationsByEmailAndStatus(email, co.com.pragma.model.loan_application.util.LoanApplicationStatus.PENDING);
+
+        // Assert
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(HttpStatus.OK.value(), response.getResponseCode());
+                    assertEquals(ResponseCode.MSSO001.getMessage(), response.getResponseMessage());
+                    assertNotNull(response.getData());
+                    assertEquals(1, ((List<?>) response.getData()).size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void listLoanApplicationsByEmailAndStatus_noResults_returnsNoContent() {
+        // Arrange
+        String email = "andres@example.com";
+        when(findLoanApplicationByEmailAndStatusUseCase.execute(anyString(), any(co.com.pragma.model.loan_application.util.LoanApplicationStatus.class)))
+                .thenReturn(Flux.empty());
+
+        // Act
+        Mono<GenericResponseDTO<Object>> result =
+                loanApplicationHandler.listLoanApllicationsByEmailAndStatus(email, co.com.pragma.model.loan_application.util.LoanApplicationStatus.APPROVED);
+
+        // Assert
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(HttpStatus.NO_CONTENT.value(), response.getResponseCode());
+                    assertEquals(ResponseCode.MSSO001.getMessage(), response.getResponseMessage());
+                    assertNull(response.getData());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void listLoanApplicationsByEmailAndStatus_error_propagates() {
+        // Arrange
+        String email = "andres@example.com";
+
+        when(findLoanApplicationByEmailAndStatusUseCase.execute(anyString(), any(co.com.pragma.model.loan_application.util.LoanApplicationStatus.class)))
+                .thenReturn(Flux.error(new RuntimeException("DB error")));
+
+        // Act
+        Mono<GenericResponseDTO<Object>> result =
+                loanApplicationHandler.listLoanApllicationsByEmailAndStatus(email, co.com.pragma.model.loan_application.util.LoanApplicationStatus.PENDING);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
+                        throwable.getMessage().equals("DB error"))
+                .verify();
+    }
+
+
 }

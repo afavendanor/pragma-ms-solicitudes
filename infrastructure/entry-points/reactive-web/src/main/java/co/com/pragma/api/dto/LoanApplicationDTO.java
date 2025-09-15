@@ -16,6 +16,9 @@ public class LoanApplicationDTO {
     private Integer term;
     @Schema(description = "Monto del crèdito.")
     private String email;
+    @Schema(description = "Tasa de interès del crèdito.")
+    private Double interestRate;
     @Schema(description = "Monto del crèdito.")
     private LoanApplicationStatusDTO status;
+
 }

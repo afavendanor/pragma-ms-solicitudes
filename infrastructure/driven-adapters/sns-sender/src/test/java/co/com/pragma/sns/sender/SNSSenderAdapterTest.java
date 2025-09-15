@@ -1,5 +1,6 @@
-package co.com.pragma.sqs.sender;
+package co.com.pragma.sns.sender;
 
+import co.com.pragma.model.error.InternalErrorException;
 import co.com.pragma.model.loan_application.LoanApplication;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,9 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.test.StepVerifier;
-import software.amazon.awssdk.services.sqs.SqsAsyncClient;
-import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
-import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
+import software.amazon.awssdk.services.sns.SnsAsyncClient;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sns.model.PublishResponse;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -20,26 +21,26 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SQSSenderAdapterTest {
+class SNSSenderAdapterTest {
 
     @Mock
-    private SqsAsyncClient client;
+    private SnsAsyncClient client;
 
     @Mock
     private ObjectMapper objectMapper;
 
     @Mock
-    private SQSSenderProperties properties;
+    private SNSSenderProperties properties;
 
     @InjectMocks
-    private SQSSenderAdapter sqsSenderAdapter;
+    private SNSSenderAdapter snsSenderAdapter;
 
     private LoanApplication loanApplication;
 
     @BeforeEach
     void setUp() {
         loanApplication = new LoanApplication();
-        when(properties.queueUrl()).thenReturn("http://fake-queue-url");
+        when(properties.topicArn()).thenReturn("http://fake-topic-arn");
     }
 
     @Test
@@ -48,15 +49,15 @@ class SQSSenderAdapterTest {
         String json = "{\"id\":1}";
         when(objectMapper.writeValueAsString(loanApplication)).thenReturn(json);
 
-        SendMessageResponse response = SendMessageResponse.builder()
+        PublishResponse response = PublishResponse.builder()
                 .messageId("12345")
                 .build();
 
-        when(client.sendMessage(any(SendMessageRequest.class)))
+        when(client.publish(any(PublishRequest.class)))
                 .thenReturn(CompletableFuture.completedFuture(response));
 
         // Act & Assert
-        StepVerifier.create(sqsSenderAdapter.send(loanApplication))
+        StepVerifier.create(snsSenderAdapter.send(loanApplication, "NOTIFY"))
                 .expectNext("12345")
                 .verifyComplete();
     }
@@ -66,22 +67,22 @@ class SQSSenderAdapterTest {
         when(objectMapper.writeValueAsString(any()))
                 .thenThrow(new JsonProcessingException("error") {});
 
-        StepVerifier.create(sqsSenderAdapter.send(loanApplication))
-                .expectError(JsonProcessingException.class)
+        StepVerifier.create(snsSenderAdapter.send(loanApplication, "NOTIFY"))
+                .expectError(InternalErrorException.class)
                 .verify();
     }
 
     @Test
-    void shouldFailWhenSqsClientFails() throws Exception {
+    void shouldFailWhenSnsClientFails() throws Exception {
         String json = "{\"id\":1}";
         when(objectMapper.writeValueAsString(loanApplication)).thenReturn(json);
 
-        when(client.sendMessage(any(SendMessageRequest.class)))
-                .thenReturn(CompletableFuture.failedFuture(new RuntimeException("SQS down")));
+        when(client.publish(any(PublishRequest.class)))
+                .thenReturn(CompletableFuture.failedFuture(new RuntimeException("SNS down")));
 
-        StepVerifier.create(sqsSenderAdapter.send(loanApplication))
+        StepVerifier.create(snsSenderAdapter.send(loanApplication, "CAPACITY"))
                 .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
-                        throwable.getMessage().equals("SQS down"))
+                        throwable.getMessage().equals("SNS down"))
                 .verify();
     }
 }

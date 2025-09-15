@@ -17,9 +17,6 @@ public class UpdateLoanApplicationDTO {
     @NotNull(message = "Id del crèdito es requerido.")
     @Schema(description = "Id del crèdito a aactualizar.")
     private Long id;
-    @NotBlank(message = "Identificaciòn es requerida.")
-    @Schema(description = "Identificaciòn del usuario.")
-    private String identification;
     @NotNull(message = "Monto del crèdito es requerido.")
     @Schema(description = "Monto del crèdito.")
     @Min(value = 0, message = "El monto del crèdito debe ser mayor o igual a 0")

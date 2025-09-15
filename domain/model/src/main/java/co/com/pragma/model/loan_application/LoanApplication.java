@@ -19,4 +19,5 @@ public class LoanApplication {
     private Long loanApplicationStatusId;
     private LoanApplicationStatus status;
     private Long loanTypeId;
+    private LoanType loanType;
 }

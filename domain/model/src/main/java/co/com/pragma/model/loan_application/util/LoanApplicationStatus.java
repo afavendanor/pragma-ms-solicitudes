@@ -4,5 +4,6 @@ public enum LoanApplicationStatus {
     PENDING_REVIEW,
     PENDING,
     APPROVED,
-    REJECTED
+    REJECTED,
+    MANUAL_REVIEW
 }

@@ -29,6 +29,7 @@ public interface LoanApplicationApiRestMapper {
         }
     }
 
+    @Mapping(target = "interestRate", source = "loanType.interestRate")
     LoanApplicationDTO loanApplicationToLoanApplicationDTO(LoanApplication loanApplication);
 
 }

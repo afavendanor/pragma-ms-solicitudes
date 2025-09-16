@@ -37,7 +37,8 @@ public class SecurityConfig {
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.GET, "/api/v1/healthcheck").permitAll()
-                        .pathMatchers(HttpMethod.GET, "/api/v1//applications/by-email-status").access(this::apiKeyOrJwtAuthorization)
+                        .pathMatchers(HttpMethod.GET, "/api/v1/applications/by-email-status").access(this::apiKeyOrJwtAuthorization)
+                        .pathMatchers(HttpMethod.PUT, "/api/v1/application").access(this::apiKeyOrJwtAuthorization)
                         .pathMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",

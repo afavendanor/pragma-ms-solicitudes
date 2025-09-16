@@ -47,7 +47,7 @@ public class LoanApplicationController {
     }
 
     @PutMapping(value = "/application", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyRole('ROLE_ADVISER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADVISER', 'ROLE_ADMIN', 'ROLE_API_KEY')")
     @Operation(summary = "Actualizar solicitud", description = "Permite recibir una petición de actualizar una solicitud. Este evalua los campos obligatorios, existencia y formatos para antes de crear el elemento en el sistema")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "solicitud actualizada correctamente"),

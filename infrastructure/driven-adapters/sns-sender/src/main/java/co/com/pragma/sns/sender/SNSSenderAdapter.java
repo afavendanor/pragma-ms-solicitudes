@@ -39,7 +39,7 @@ public class SNSSenderAdapter implements LoanApplicationSNSSenderGateway {
                     }
                 })
                 .map(PublishResponse::messageId)
-                .doOnNext(id -> log.debug("Message sent {}", id))
+                .doOnSuccess(id -> log.debug("Message sent {}", id))
                 .doOnError(error -> log.error("Message send error: {}", error.getMessage(), error));
     }
 

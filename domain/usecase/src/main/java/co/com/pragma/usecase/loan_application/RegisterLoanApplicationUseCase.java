@@ -39,9 +39,10 @@ public class RegisterLoanApplicationUseCase {
                                         .flatMap(saved -> {
                                             if (Boolean.TRUE.equals(type.getAutomaticValidation())) {
                                                 saved.setLoanType(type);
-                                                loanApplicationSNSSenderGateway.send(saved, "CAPACITY")
+                                                return loanApplicationSNSSenderGateway.send(saved, "CAPACITY")
                                                         .subscribeOn(Schedulers.boundedElastic())
-                                                        .onErrorResume(e -> Mono.empty());
+                                                        .onErrorResume(e -> Mono.empty())
+                                                        .thenReturn(saved);
                                             }
                                             return Mono.just(saved);
                                         });

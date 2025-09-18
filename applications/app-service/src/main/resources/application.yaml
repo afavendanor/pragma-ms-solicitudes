@@ -2,6 +2,8 @@ spring:
   application:
     name: pragma-ms-solicitudes
     api-key: mi-api-key-secreta
+  webflux:
+    base-path: /applications
   profiles:
     include: r2dbc, rest-consumer, sns-sender
 

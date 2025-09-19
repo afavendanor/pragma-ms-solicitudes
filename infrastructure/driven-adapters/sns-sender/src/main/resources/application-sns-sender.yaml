@@ -1,4 +1,4 @@
 adapter:
   sns:
     region: ${AWS_REGION:us-east-1}
-    topicArn: ${AWS_TOPIC_SNS:arn:aws:sns:us-east-1:666734176386:loan-applications-topic}
+    topicArn: ${AWS_TOPIC_SNS:arn:aws:sns:us-east-1:655595464935:dev-loan-applications-topic}

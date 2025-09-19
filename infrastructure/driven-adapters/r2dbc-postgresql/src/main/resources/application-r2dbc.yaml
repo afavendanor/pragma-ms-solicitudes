@@ -1,8 +1,8 @@
 spring:
   r2dbc:
-    url: r2dbc:pool:postgresql://localhost:5432/crediya
-    username: postgres
-    password:
+    url: r2dbc:pool:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   data:
     r2dbc:
       repositories:

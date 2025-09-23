@@ -1,7 +1,7 @@
 spring:
   application:
     name: pragma-ms-solicitudes
-    api-key: mi-api-key-secreta
+    api-key: ${API_KEY}
   webflux:
     base-path: /applications
   profiles:

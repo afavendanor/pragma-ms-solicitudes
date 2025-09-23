@@ -9,7 +9,7 @@ spring:
 
 logging:
   level:
-    co.com.pragma: INFO
+    co.com.pragma: DEBUG
 
 server:
   port: 8080
